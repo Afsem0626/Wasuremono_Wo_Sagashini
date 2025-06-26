@@ -1,3 +1,4 @@
+// 構造体ヘッダ
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
