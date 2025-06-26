@@ -1,4 +1,5 @@
 #include "init.h"
+#include "input.h"
 
 int main(int argc, char *argv[])
 {
