@@ -1,9 +1,11 @@
 #include "init.h"
 #include "input.h"
+#include "draw.h"
+#include "logic.h"
 
 int main(int argc, char *argv[])
 {
-    GameState gameState;
+    GameState gameState = {0}; // ゲーム状態を初期化
 
     // ゲームの初期化
     if (!InitGame(&gameState))
@@ -14,18 +16,12 @@ int main(int argc, char *argv[])
     while (gameState.isRunning)
     {
 
-        HandleInput(&gameState);
-
-        SDL_SetRenderDrawColor(gameState.renderer, 0, 0, 0, 255);
-        SDL_RenderClear(gameState.renderer);
-        SDL_RenderPresent(gameState.renderer);
+        HandleInput(&gameState); // 1. 入力処理
+        UpdateGame(&gameState);  // 2. ロジック更新
+        DrawGame(&gameState);    // 3. 描画
 
         SDL_Delay(16);
     }
-    // ウィンドウが3秒間表示されるのを確認するための待機
-    printf("3秒後にウィンドウを閉じる\n");
-    SDL_Delay(3000);
-
     // 終了処理
     Cleanup(&gameState);
 
