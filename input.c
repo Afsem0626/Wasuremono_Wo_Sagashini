@@ -5,6 +5,23 @@ void HandleInput(GameState *gs)
 {
     SDL_Event event;
 
+    // まず、このフレームでの入力状態をリセット
+    gs->input.up = false;
+    gs->input.down = false;
+    gs->input.left = false;
+    gs->input.right = false;
+
+    // キーボードの押しっぱなし状態を取得
+    const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
+    if (keyboardState[SDL_SCANCODE_UP])
+        gs->input.up = true;
+    if (keyboardState[SDL_SCANCODE_DOWN])
+        gs->input.down = true;
+    if (keyboardState[SDL_SCANCODE_LEFT])
+        gs->input.left = true;
+    if (keyboardState[SDL_SCANCODE_RIGHT])
+        gs->input.right = true;
+
     // イベントキューからイベントを一つずつ取り出す
     while (SDL_PollEvent(&event))
     {
@@ -27,7 +44,8 @@ void HandleInput(GameState *gs)
 
         // ジョイスティックのボタンが押された場合 (DDRマットのパネル)
         case SDL_JOYBUTTONDOWN:
-            printf("DDR Mat Panel Pressed: Button %d\n", event.jbutton.button);
+            // 後でパネルの番号を調べて、対応するgs->inputのフラグをtrueにする
+            // 例: if (event.jbutton.button == 0) gs->input.up = true;
             break;
         }
     }
