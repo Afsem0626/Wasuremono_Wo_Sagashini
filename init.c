@@ -44,6 +44,17 @@ bool InitGame(GameState *gs)
         }
     }
 
+    // init.c の InitGame 関数の最後に、gs->isRunning = true; の前に追加
+
+    // プレイヤーの初期化
+    gs->player.rect.w = 50;
+    gs->player.rect.h = 50;
+
+    int screen_w, screen_h;
+    SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
+    gs->player.rect.x = (screen_w - gs->player.rect.w) / 2;
+    gs->player.rect.y = (screen_h - gs->player.rect.h) / 2;
+
     gs->isRunning = true;
     printf("初期化が完了しました。\n");
     return true;
