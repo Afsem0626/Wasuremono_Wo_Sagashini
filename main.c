@@ -10,11 +10,17 @@ int main(int argc, char *argv[])
         return 1; // 初期化に失敗したら終了
     }
 
-    // 背景を黒でクリアして表示（テストのため）
-    SDL_SetRenderDrawColor(gameState.renderer, 0, 0, 0, 255);
-    SDL_RenderClear(gameState.renderer);
-    SDL_RenderPresent(gameState.renderer);
+    while (gameState.isRunning)
+    {
 
+        HandleInput(&gameState);
+
+        SDL_SetRenderDrawColor(gameState.renderer, 0, 0, 0, 255);
+        SDL_RenderClear(gameState.renderer);
+        SDL_RenderPresent(gameState.renderer);
+
+        SDL_Delay(16);
+    }
     // ウィンドウが3秒間表示されるのを確認するための待機
     printf("3秒後にウィンドウを閉じる\n");
     SDL_Delay(3000);
