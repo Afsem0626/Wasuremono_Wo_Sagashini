@@ -1,12 +1,12 @@
 # 最終的に生成する実行ファイル名
-EXEC = ./step2_test
+EXEC = ./step3_test
 
 # 使用するCコンパイラ
 CC = gcc
 
 # コンパイル対象のソースファイル (.c ファイル)
 # ご自身のプロジェクトに合わせて、ファイル名を追加・削除してください。
-SRCS = main.c init.c input.c
+SRCS = main.c init.c input.c draw.c logic.c
 
 # ソースファイルからオブジェクトファイル (.o ファイル) のリストを自動生成
 OBJS = $(SRCS:.c=.o)
@@ -17,17 +17,10 @@ OBJS = $(SRCS:.c=.o)
 CFLAGS = -g -Wall `pkg-config --cflags sdl2 SDL2_image SDL2_ttf SDL2_mixer`
 
 # リンクオプション
-# -lm         : 数学ライブラリをリンクする (sin, cosなどを使う場合に必要)
 LIBS = `pkg-config --libs sdl2 SDL2_image SDL2_ttf SDL2_mixer` -lm
 
-
-# --- ルール定義 ---
-
-# デフォルトのターゲット: 'make' コマンドだけで実行される
 all: $(EXEC)
 
-# 実行ファイルの生成ルール
-# 依存関係: 全てのオブジェクトファイル (.o) が必要
 $(EXEC): $(OBJS)
 	$(CC) -o $(EXEC) $(OBJS) $(LIBS)
 
