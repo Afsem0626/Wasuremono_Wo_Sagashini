@@ -1,7 +1,17 @@
 #include "draw.h"
-#include <stdio.h>
+#include <stdio.h> // sprintf用
 
-// ... DrawText関数は変更なし ...
+// UI(文字)描画の補助関数
+void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y)
+{
+    SDL_Color color = {255, 255, 255, 255}; // 白色
+    SDL_Surface *surface = TTF_RenderUTF8_Solid(font, text, color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect destRect = {x, y, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &destRect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+}
 
 // 新しい関数：ゲームオーバー画面を描画
 void DrawGameOverScene(GameState *gs)
@@ -44,7 +54,6 @@ void DrawMainStage(GameState *gs)
     DrawText(gs->renderer, gs->font, hudText, 20, 20);
 }
 
-// DrawGameを修正
 void DrawGame(GameState *gs)
 {
     // 現在のシーンに応じて描画を切り替える

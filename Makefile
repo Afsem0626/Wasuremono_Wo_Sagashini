@@ -1,12 +1,12 @@
 # 最終的に生成する実行ファイル名
-EXEC = ./step4_test
+EXEC = ./step5_test
 
 # 使用するCコンパイラ
 CC = gcc
 
 # コンパイル対象のソースファイル (.c ファイル)
 # ご自身のプロジェクトに合わせて、ファイル名を追加・削除してください。
-SRCS = main.c init.c input.c draw.c logic.c
+SRCS = main.c init.c input.c draw.c logic.c sound.c
 
 # ソースファイルからオブジェクトファイル (.o ファイル) のリストを自動生成
 OBJS = $(SRCS:.c=.o)
