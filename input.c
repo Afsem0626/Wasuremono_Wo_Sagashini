@@ -1,36 +1,23 @@
 #include "input.h"
 #include <stdio.h>
 
-void HandleInput(GameState *gs)
+// input.hで宣言した通り、引数を (InputState* input, bool* isRunning) に修正
+void HandleInput(InputState *input, bool *isRunning)
 {
     SDL_Event event;
 
-    // まず、このフレームでの入力状態をリセット
-    gs->input.up = false;
-    gs->input.down = false;
-    gs->input.left = false;
-    gs->input.right = false;
+    // 前フレームの「押された瞬間」フラグをリセット
+    // (これはより高度な実装ですが、今はなくても動きます)
+    // input->wasUpPressed = false; ...など
 
-    // キーボードの押しっぱなし状態を取得
-    const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
-    if (keyboardState[SDL_SCANCODE_UP])
-        gs->input.up = true;
-    if (keyboardState[SDL_SCANCODE_DOWN])
-        gs->input.down = true;
-    if (keyboardState[SDL_SCANCODE_LEFT])
-        gs->input.left = true;
-    if (keyboardState[SDL_SCANCODE_RIGHT])
-        gs->input.right = true;
-
-    // イベントキューからイベントを一つずつ取り出す
+    // SDLイベントキューを処理
     while (SDL_PollEvent(&event))
     {
-        // イベントの種類を判別
         switch (event.type)
         {
         // ウィンドウの×ボタンが押された場合
         case SDL_QUIT:
-            gs->isRunning = false;
+            *isRunning = false; // ポインタ経由でフラグを操作
             break;
 
         // キーボードのキーが押された場合
@@ -38,15 +25,18 @@ void HandleInput(GameState *gs)
             // Escapeキーならゲームを終了
             if (event.key.keysym.sym == SDLK_ESCAPE)
             {
-                gs->isRunning = false;
+                *isRunning = false;
             }
-            break;
-
-        // ジョイスティックのボタンが押された場合 (DDRマットのパネル)
-        case SDL_JOYBUTTONDOWN:
-            // 後でパネルの番号を調べて、対応するgs->inputのフラグをtrueにする
-            // 例: if (event.jbutton.button == 0) gs->input.up = true;
             break;
         }
     }
+
+    // キーボードの「押しっぱなし」状態を取得し、InputStateを更新
+    const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
+    input->up = keyboardState[SDL_SCANCODE_UP];
+    input->down = keyboardState[SDL_SCANCODE_DOWN];
+    input->left = keyboardState[SDL_SCANCODE_LEFT];
+    input->right = keyboardState[SDL_SCANCODE_RIGHT];
+
+    // 今後、ここにDDRマットの押しっぱなし状態の処理も追加できます
 }

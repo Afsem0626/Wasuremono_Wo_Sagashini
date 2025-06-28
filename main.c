@@ -1,27 +1,42 @@
-#include "init.h"
-#include "input.h"
-#include "draw.h"
-#include "logic.h"
+#include "init.h"  // GameState, Playerなどの定義を含む
+#include "input.h" // InputStateの定義とHandleInputの宣言を含む
+#include "logic.h" // UpdateGameの宣言を含む
+#include "draw.h"  // DrawGameの宣言を含む
 
 int main(int argc, char *argv[])
 {
-    GameState gameState = {0}; // ゲーム状態を初期化
+    // ★★★ GameStateとInputStateを別々の変数として用意する ★★★
+    GameState gameState = {0};
+    InputState inputState = {0};
 
     // ゲームの初期化
     if (!InitGame(&gameState))
     {
-        return 1; // 初期化に失敗したら終了
+        return 1;
     }
+    // アセットの読み込みも呼び出す
+    LoadAssets(&gameState);
 
+    // --- メインループ ---
+    gameState.isRunning = true;
     while (gameState.isRunning)
     {
 
-        HandleInput(&gameState); // 1. 入力処理
-        UpdateGame(&gameState);  // 2. ロジック更新
-        DrawGame(&gameState);    // 3. 描画
+        // ★★★ 各関数に、必要とされる正しい引数を渡す ★★★
 
+        // 1. 入力処理：inputStateを更新し、isRunningフラグを操作する
+        HandleInput(&inputState, &gameState.isRunning);
+
+        // 2. ロジック更新：inputStateを基に、gameStateを更新する
+        UpdateGame(&gameState, &inputState);
+
+        // 3. 描画：現在のgameStateを基に画面を描く
+        DrawGame(&gameState);
+
+        // 負荷軽減
         SDL_Delay(16);
     }
+
     // 終了処理
     Cleanup(&gameState);
 

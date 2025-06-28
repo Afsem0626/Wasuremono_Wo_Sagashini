@@ -4,6 +4,6 @@
 #include "structs.h"
 
 // 関数プロトタイプ宣言
-void HandleInput(GameState *gs);
+void HandleInput(InputState *input, bool *isRunning);
 
 #endif // INPUT_H

@@ -19,11 +19,39 @@ SDL_Texture *LoadTexture(const char *path, SDL_Renderer *renderer)
     return newTexture;
 }
 
+// アセットを読み込む専用の関数
+void LoadAssets(GameState *gs)
+{
+    // フォント
+    gs->font = TTF_OpenFont("ZenOldMincho-Bold.ttf", 28);
+    if (!gs->font)
+    { /* エラー処理 */
+    }
+
+    // プレイヤー画像
+    gs->player.texture = LoadTexture("player.png", gs->renderer);
+
+    // 野菜画像
+    gs->veggies[0].texture = LoadTexture("vegetables/carrot.png", gs->renderer);
+    gs->veggies[1].texture = LoadTexture("vegetables/eggplant.png", gs->renderer);
+    gs->veggies[2].texture = LoadTexture("vegetables/tomato.png", gs->renderer);
+
+    // 敵画像
+    gs->enemies[0].texture = LoadTexture("enemies/enemy.png", gs->renderer);
+    gs->enemies[1].texture = gs->enemies[0].texture; // 2体目は同じ画像を使う
+
+    // 効果音
+    gs->damageSound = Mix_LoadWAV("sound/damage.wav");
+    if (!gs->damageSound)
+    { /* エラー処理 */
+    }
+}
+
 bool InitGame(GameState *gs)
 {
-    // SDLの初期化
+    // ライブラリの初期化
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) < 0 ||
-        IMG_Init(IMG_INIT_PNG) == 0 ||
+        !(IMG_Init(IMG_INIT_PNG)) ||
         TTF_Init() == -1 ||
         Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
     {
@@ -31,94 +59,75 @@ bool InitGame(GameState *gs)
         return false;
     }
 
-    // ウィンドウ作成... (ステップ3と同じ)
+    // ウィンドウとレンダラーの作成
     gs->window = SDL_CreateWindow("おさんぽ", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    if (!gs->window)
-        return false;
-
-    // レンダラー作成... (ステップ3と同じ)
     gs->renderer = SDL_CreateRenderer(gs->window, -1, SDL_RENDERER_ACCELERATED);
-    if (!gs->renderer)
+    if (!gs->window || !gs->renderer)
         return false;
 
-    // ジョイスティック初期化... (ステップ3と同じ)
+    // ジョイスティックの準備
     if (SDL_NumJoysticks() > 0)
-    {
         gs->ddrMat = SDL_JoystickOpen(0);
-    }
 
-    // ゲーム状態の初期化
-    gs->isRunning = true;
-    gs->currentScene = SCENE_MAIN_STAGE;
-    gs->player.hp = 5; // HPの初期値を設定
+    // アセット読み込み
+    LoadAssets(gs);
+
+    // --- 各オブジェクトの初期状態を設定 ---
+    int screen_w, screen_h;
+    SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
+
+    // プレイヤー
+    gs->player.hp = 5;
+    gs->player.rect = (SDL_Rect){100, (screen_h - 100) / 2, 100, 100};
+
+    // 野菜
     gs->veggiesCollected = 0;
+    gs->veggies[0].isActive = true;
+    gs->veggies[0].rect = (SDL_Rect){400, 500, 80, 80};
+    gs->veggies[1].isActive = true;
+    gs->veggies[1].rect = (SDL_Rect){900, 300, 80, 80};
+    gs->veggies[2].isActive = true;
+    gs->veggies[2].rect = (SDL_Rect){1400, 600, 80, 80};
 
-    // 敵の初期化
+    // 敵
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         gs->enemies[i].isActive = true;
-        gs->enemies[i].rect = (SDL_Rect){1800, 200 + i * 300, 120, 120}; // 初期位置
-        gs->enemies[i].vx = -5;                                          // 左に動く速度
+        gs->enemies[i].rect = (SDL_Rect){screen_w + (i * 400), 200 + i * 300, 120, 120};
+        gs->enemies[i].vx = -5;
         gs->enemies[i].vy = 0;
     }
 
-    gs->player.texture = LoadTexture("player.png", gs->renderer);
-    SDL_Texture *carrotTex = LoadTexture("vegetables/carrot.png", gs->renderer);
-    SDL_Texture *eggplantTex = LoadTexture("vegetables/eggplant.png", gs->renderer);
-    SDL_Texture *tomatoTex = LoadTexture("vegetables/tomato.png", gs->renderer);
-    if (!gs->player.texture || !carrotTex || !eggplantTex || !tomatoTex)
-        return false;
-
-    // プレイヤーと野菜の初期化
-    gs->player.rect = (SDL_Rect){100, 490, 100, 100}; // プレイヤーの初期位置とサイズ
-    gs->veggiesCollected = 0;
-
-    gs->veggies[0] = (GameObject){true, {400, 500, 80, 80}, carrotTex};
-    gs->veggies[1] = (GameObject){true, {900, 300, 80, 80}, eggplantTex};
-    gs->veggies[2] = (GameObject){true, {1400, 600, 80, 80}, tomatoTex};
-
     gs->isRunning = true;
+    gs->currentScene = SCENE_MAIN_STAGE;
+
     return true;
 }
 
-void LoadAssets(GameState *gs)
-{
-    // ... フォントと野菜テクスチャの読み込みは同じ ...
-    gs->player.texture = LoadTexture("player.png", gs->renderer);
-    // 敵テクスチャの読み込みを追加
-    gs->enemies[0].texture = LoadTexture("enemies/enemy.png", gs->renderer);
-    gs->enemies[1].texture = gs->enemies[0].texture; // 同じ画像を使う
-
-    // 効果音の読み込みを追加
-    gs->damageSound = Mix_LoadWAV("sound/damage.wav");
-    if (!gs->damageSound)
-    {
-        fprintf(stderr, "効果音をロードできませんでした: %s\n", Mix_GetError());
-    }
-}
-
-// Cleanup関数も修正が必要（テクスチャとフォントの解放）
 void Cleanup(GameState *gs)
 {
     // テクスチャの解放
     SDL_DestroyTexture(gs->player.texture);
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
-        SDL_DestroyTexture(gs->veggies[i].texture);
+        if (gs->veggies[i].texture)
+            SDL_DestroyTexture(gs->veggies[i].texture);
     }
-    // フォントの解放
+    // 敵のテクスチャは共有しているので一度だけ解放
+    if (gs->enemies[0].texture)
+        SDL_DestroyTexture(gs->enemies[0].texture);
+
+    // フォントとサウンドの解放
     TTF_CloseFont(gs->font);
-    // 効果音の解放
     Mix_FreeChunk(gs->damageSound);
+
     // SDLサブシステムの終了
     if (gs->ddrMat)
         SDL_JoystickClose(gs->ddrMat);
-    if (gs->renderer)
-        SDL_DestroyRenderer(gs->renderer);
-    if (gs->window)
-        SDL_DestroyWindow(gs->window);
+    SDL_DestroyRenderer(gs->renderer);
+    SDL_DestroyWindow(gs->window);
+
     Mix_CloseAudio();
-    Mix_Quit();
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
