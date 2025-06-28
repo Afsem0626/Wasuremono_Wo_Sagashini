@@ -1,6 +1,6 @@
 #include "logic.h"
 
-const int PLAYER_SPEED = 8;
+const int PLAYER_SPEED = 12;
 
 // 当たり判定の補助関数
 bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b)

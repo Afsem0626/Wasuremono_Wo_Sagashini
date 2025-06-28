@@ -7,16 +7,55 @@
 #include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
 
-#define MAX_VEGGIES 3 // 野菜の数
+#define MAX_VEGGIES 3
+#define MAX_ENEMIES 2 // 敵の数を定義
+
+// ゲームの場面（シーン）を定義
+typedef enum
+{
+    SCENE_MAIN_STAGE,
+    SCENE_GAME_OVER
+} GameScene;
 
 typedef struct
 {
     bool isActive;
     SDL_Rect rect;
     SDL_Texture *texture;
+    int vx, vy; // 速度
 } GameObject;
 
-// 入力状態を保持する構造体
+typedef struct
+{
+    SDL_Rect rect;
+    SDL_Texture *texture;
+    int hp; // HPを追加
+} Player;
+
+typedef struct
+{
+    // SDL関連
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    SDL_Joystick *ddrMat;
+
+    // ゲーム状態
+    bool isRunning;
+    GameScene currentScene;
+
+    // オブジェクト
+    Player player;
+    GameObject veggies[MAX_VEGGIES];
+    GameObject enemies[MAX_ENEMIES];
+    int veggiesCollected;
+
+    // アセット
+    TTF_Font *font;
+    Mix_Chunk *damageSound; // 効果音を追加
+
+} GameState;
+
+// (InputStateはステップ3から変更なし)
 typedef struct
 {
     bool up;
@@ -24,29 +63,5 @@ typedef struct
     bool left;
     bool right;
 } InputState;
-
-// プレイヤーの状態を保持する構造体
-typedef struct
-{
-    SDL_Rect rect;
-    // 今後、ここにテクスチャやHPなどを追加していく
-    SDL_Texture *texture;
-    int hp;
-} Player;
-
-// ゲーム全体の状態を管理する構造体
-typedef struct
-{
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-    SDL_Joystick *ddrMat;
-    bool isRunning;
-    InputState input; // 入力状態を追加
-    Player player;    // プレイヤーを追加
-    GameObject veggies[MAX_VEGGIES];
-    int veggiesCollected;
-    // アセット
-    TTF_Font *font;
-} GameState;
 
 #endif // STRUCTS_H
