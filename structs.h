@@ -18,6 +18,15 @@ typedef enum
     SCENE_GAME_OVER
 } GameScene;
 
+// (InputStateはステップ3から変更なし)
+typedef struct
+{
+    bool up;
+    bool down;
+    bool left;
+    bool right;
+} InputState;
+
 typedef struct
 {
     bool isActive;
@@ -45,7 +54,7 @@ typedef struct
     GameScene currentScene;
 
     InputState input;
-    // オブジェクト
+    //  オブジェクト
     Player player;
     GameObject veggies[MAX_VEGGIES];
     GameObject enemies[MAX_ENEMIES];
@@ -56,14 +65,5 @@ typedef struct
     Mix_Chunk *damageSound; // 効果音を追加
 
 } GameState;
-
-// (InputStateはステップ3から変更なし)
-typedef struct
-{
-    bool up;
-    bool down;
-    bool left;
-    bool right;
-} InputState;
 
 #endif // STRUCTS_H

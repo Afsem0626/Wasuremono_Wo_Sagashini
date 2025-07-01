@@ -3,8 +3,16 @@
 
 const int PLAYER_SPEED = 20;
 
+static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b);
+static void ResetStage(GameState *gs);
+static void UpdateEnemies(GameState *gs);
+static void CheckCollisions(GameState *gs);
+static void UpdateTitleScene(GameState *gs, const InputState *input);
+static void UpdateMainStage(GameState *gs, const InputState *input);
+static void UpdateGameOverScene(GameState *gs, const InputState *input);
+
 // 新しい関数：敵を動かす
-void UpdateEnemies(GameState *gs)
+static void UpdateEnemies(GameState *gs)
 {
     int screen_w, screen_h;
     SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
@@ -24,12 +32,12 @@ void UpdateEnemies(GameState *gs)
 }
 
 // 新しい関数：当たり判定の処理
-void CheckCollisions(GameState *gs)
+static void CheckCollisions(GameState *gs)
 {
     // 野菜との当たり判定
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
-        if (gs->veggies[i].isActive && SDL_HasIntersection(&gs->player.rect, &gs->veggies[i].rect))
+        if (gs->veggies[i].isActive && DetectCollision(&gs->player.rect, &gs->veggies[i].rect))
         {
             gs->veggies[i].isActive = false;
             gs->veggiesCollected++;
@@ -39,7 +47,7 @@ void CheckCollisions(GameState *gs)
     // 敵との当たり判定
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
-        if (gs->enemies[i].isActive && SDL_HasIntersection(&gs->player.rect, &gs->enemies[i].rect))
+        if (gs->enemies[i].isActive && DetectCollision(&gs->player.rect, &gs->enemies[i].rect))
         {
             gs->player.hp--;                 // HPを減らす
             gs->enemies[i].isActive = false; // 敵は一度当たったら消える
@@ -50,7 +58,7 @@ void CheckCollisions(GameState *gs)
 }
 
 // UpdateGameを修正
-void UpdateMainStage(GameState *gs, const InputState *input)
+static void UpdateMainStage(GameState *gs, const InputState *input)
 {
     // ゲームプレイ中のみ更新
     if (gs->currentScene == SCENE_MAIN_STAGE)
@@ -99,7 +107,7 @@ void UpdateGame(GameState *gs, const InputState *input)
     }
 }
 
-void UpdateGameOverScene(GameState *gs, const InputState *input)
+static void UpdateGameOverScene(GameState *gs, const InputState *input)
 {
     // いずれかのパネルが「押された瞬間」なら、タイトル画面に戻る
     if (input->up || input->down || input->left || input->right)
@@ -115,7 +123,7 @@ static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b)
 }
 
 // ★★★ 新規追加 ★★★：ステージの状態をリセットする関数
-void ResetStage(GameState *gs)
+static void ResetStage(GameState *gs)
 {
     printf("ステージをリセットします。\n");
     gs->player.hp = 5; // HPを初期値に戻す
@@ -141,7 +149,7 @@ void ResetStage(GameState *gs)
 }
 
 // タイトル画面のロジック
-void UpdateTitleScene(GameState *gs, const InputState *input)
+static void UpdateTitleScene(GameState *gs, const InputState *input)
 {
     // いずれかのパネルが「押された瞬間」なら、ステージをリセットしてゲーム開始
     if (input->up || input->down || input->left || input->right)

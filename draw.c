@@ -1,6 +1,10 @@
 #include "draw.h"
 #include <stdio.h> // sprintf用
 
+static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y);
+static void DrawTitleScene(GameState *gs);
+static void DrawMainStage(GameState *gs);
+static void DrawGameOverScene(GameState *gs);
 // UI(文字)描画の補助関数
 void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y)
 {
@@ -56,9 +60,15 @@ void DrawMainStage(GameState *gs)
 
 void DrawGame(GameState *gs)
 {
+    // 背景をクリア
+    SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(gs->renderer);
     // 現在のシーンに応じて描画を切り替える
     switch (gs->currentScene)
     {
+    case SCENE_TITLE:
+        DrawTitleScene(gs);
+        break;
     case SCENE_MAIN_STAGE:
         DrawMainStage(gs);
         break;
@@ -67,4 +77,10 @@ void DrawGame(GameState *gs)
         break;
     }
     SDL_RenderPresent(gs->renderer);
+}
+
+void DrawTitleScene(GameState *gs)
+{
+    DrawText(gs->renderer, gs->font, "忘れ物を探シニ", 860, 400);
+    DrawText(gs->renderer, gs->font, "パネルをふんで はじめる", 780, 600);
 }
