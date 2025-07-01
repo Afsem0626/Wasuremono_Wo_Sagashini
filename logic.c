@@ -1,7 +1,7 @@
 #include "logic.h"
 #include "sound.h" // sound.hをインクルード
 
-const int PLAYER_SPEED = 8;
+const int PLAYER_SPEED = 20;
 
 // 新しい関数：敵を動かす
 void UpdateEnemies(GameState *gs)
