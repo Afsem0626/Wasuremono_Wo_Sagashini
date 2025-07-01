@@ -99,8 +99,9 @@ bool InitGame(GameState *gs)
     }
 
     gs->isRunning = true;
+    // 初期シーンをタイトル画面に設定
+    gs->currentScene = SCENE_TITLE;
     gs->currentScene = SCENE_MAIN_STAGE;
-
     return true;
 }
 

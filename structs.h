@@ -13,6 +13,7 @@
 // ゲームの場面（シーン）を定義
 typedef enum
 {
+    SCENE_TITLE, // タイトル画面
     SCENE_MAIN_STAGE,
     SCENE_GAME_OVER
 } GameScene;
@@ -43,6 +44,7 @@ typedef struct
     bool isRunning;
     GameScene currentScene;
 
+    InputState input;
     // オブジェクト
     Player player;
     GameObject veggies[MAX_VEGGIES];
