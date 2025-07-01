@@ -50,7 +50,7 @@ void CheckCollisions(GameState *gs)
 }
 
 // UpdateGameを修正
-void UpdateGame(GameState *gs, const InputState *input)
+void UpdateMainStage(GameState *gs, const InputState *input)
 {
     // ゲームプレイ中のみ更新
     if (gs->currentScene == SCENE_MAIN_STAGE)
@@ -77,5 +77,76 @@ void UpdateGame(GameState *gs, const InputState *input)
             gs->currentScene = SCENE_GAME_OVER;
             printf("ゲームオーバー！\n");
         }
+    }
+}
+
+// --- 司令塔となるUpdateGame関数 ---
+void UpdateGame(GameState *gs, const InputState *input)
+{
+    // 現在のシーンに応じて、適切な更新関数を呼び出す
+    switch (gs->currentScene)
+    {
+    case SCENE_TITLE:
+        UpdateTitleScene(gs, input);
+        break;
+    case SCENE_MAIN_STAGE:
+        UpdateMainStage(gs, input);
+        break;
+    case SCENE_GAME_OVER:
+        UpdateGameOverScene(gs, input);
+        break;
+        // case SCENE_NOVEL: など、他のシーンもここに追加
+    }
+}
+
+void UpdateGameOverScene(GameState *gs, const InputState *input)
+{
+    // いずれかのパネルが「押された瞬間」なら、タイトル画面に戻る
+    if (input->up || input->down || input->left || input->right)
+    {
+        gs->currentScene = SCENE_TITLE;
+    }
+}
+
+// --- 内部でのみ使用する補助関数 ---
+static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b)
+{
+    return SDL_HasIntersection(a, b);
+}
+
+// ★★★ 新規追加 ★★★：ステージの状態をリセットする関数
+void ResetStage(GameState *gs)
+{
+    printf("ステージをリセットします。\n");
+    gs->player.hp = 5; // HPを初期値に戻す
+    gs->veggiesCollected = 0;
+
+    // 野菜の位置と状態をリセット
+    for (int i = 0; i < MAX_VEGGIES; i++)
+    {
+        gs->veggies[i].isActive = true;
+        // ここで野菜の初期位置を再設定するロジックを追加
+        gs->veggies[i].rect.x = 400 + i * 500;
+        gs->veggies[i].rect.y = 300 + (i % 2) * 200;
+    }
+    // 敵の位置と状態も同様にリセット
+    for (int i = 0; i < MAX_ENEMIES; i++)
+    {
+        gs->enemies[i].isActive = true;
+        // ここで敵の初期位置を再設定するロジックを追加
+        int screen_w, screen_h;
+        SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
+        gs->enemies[i].rect.x = screen_w + (i * 400);
+    }
+}
+
+// タイトル画面のロジック
+void UpdateTitleScene(GameState *gs, const InputState *input)
+{
+    // いずれかのパネルが「押された瞬間」なら、ステージをリセットしてゲーム開始
+    if (input->up || input->down || input->left || input->right)
+    {
+        ResetStage(gs); // ゲーム開始前に状態をリセット
+        gs->currentScene = SCENE_MAIN_STAGE;
     }
 }
