@@ -156,5 +156,6 @@ static void UpdateTitleScene(GameState *gs, const InputState *input)
     {
         ResetStage(gs); // ゲーム開始前に状態をリセット
         gs->currentScene = SCENE_MAIN_STAGE;
+        gs->currentMinigame = MINIGAME_ARROWS; // ★★★ テストのため、ミニゲーム2を強制的に開始 ★★★
     }
 }
