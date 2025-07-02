@@ -18,6 +18,21 @@ typedef enum
     SCENE_GAME_OVER
 } GameScene;
 
+typedef enum
+{
+    MINIGAME_VEGGIE,
+    MINIGAME_ARROWS
+} MinigameType;
+
+typedef enum
+{
+    ARROW_UP,
+    ARROW_DOWN,
+    ARROW_LEFT,
+    ARROW_RIGHT,
+    MAX_ARROWS
+} ArrowDir;
+
 // (InputStateはステップ3から変更なし)
 typedef struct
 {
@@ -54,6 +69,7 @@ typedef struct
     GameScene currentScene;
 
     InputState input;
+    MinigameType currentMinigame;
     //  オブジェクト
     Player player;
     GameObject veggies[MAX_VEGGIES];
@@ -63,6 +79,9 @@ typedef struct
     // アセット
     TTF_Font *font;
     Mix_Chunk *damageSound; // 効果音を追加
+    SDL_Texture *arrowTextures[MAX_ARROWS];
+    // ミニゲーム2の状態
+    int arrowSequence[MAX_ARROWS];
 
 } GameState;
 

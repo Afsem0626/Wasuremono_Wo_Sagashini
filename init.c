@@ -45,6 +45,12 @@ void LoadAssets(GameState *gs)
     if (!gs->damageSound)
     { /* エラー処理 */
     }
+
+    // 矢印テクスチャの読み込み
+    gs->arrowTextures[ARROW_UP] = LoadTexture("assets/arrow_up.png", gs->renderer);
+    gs->arrowTextures[ARROW_DOWN] = LoadTexture("assets/arrow_down.png", gs->renderer);
+    gs->arrowTextures[ARROW_LEFT] = LoadTexture("assets/arrow_left.png", gs->renderer);
+    gs->arrowTextures[ARROW_RIGHT] = LoadTexture("assets/arrow_right.png", gs->renderer);
 }
 
 bool InitGame(GameState *gs)
@@ -99,6 +105,12 @@ bool InitGame(GameState *gs)
     }
 
     gs->isRunning = true;
+
+    // ★★★ お題となる矢印シーケンスを初期化（テスト用） ★★★
+    gs->arrowSequence[0] = ARROW_LEFT;
+    gs->arrowSequence[1] = ARROW_RIGHT;
+    gs->arrowSequence[2] = ARROW_DOWN;
+    gs->arrowSequence[3] = ARROW_UP;
     // 初期シーンをタイトル画面に設定
     gs->currentScene = SCENE_TITLE;
     // gs->currentScene = SCENE_MAIN_STAGE;

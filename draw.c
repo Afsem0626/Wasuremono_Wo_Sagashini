@@ -31,22 +31,29 @@ void DrawMainStage(GameState *gs)
     SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 255); // 背景を黒に
     SDL_RenderClear(gs->renderer);
 
-    // 野菜を描画
-    for (int i = 0; i < MAX_VEGGIES; i++)
+    if (gs->currentMinigame == MINIGAME_VEGGIE)
     {
-        if (gs->veggies[i].isActive)
+        // 野菜を描画
+        for (int i = 0; i < MAX_VEGGIES; i++)
         {
-            SDL_RenderCopy(gs->renderer, gs->veggies[i].texture, NULL, &gs->veggies[i].rect);
+            if (gs->veggies[i].isActive)
+            {
+                SDL_RenderCopy(gs->renderer, gs->veggies[i].texture, NULL, &gs->veggies[i].rect);
+            }
+        }
+
+        // 敵を描画
+        for (int i = 0; i < MAX_ENEMIES; i++)
+        {
+            if (gs->enemies[i].isActive)
+            {
+                SDL_RenderCopy(gs->renderer, gs->enemies[i].texture, NULL, &gs->enemies[i].rect);
+            }
         }
     }
-
-    // 敵を描画
-    for (int i = 0; i < MAX_ENEMIES; i++)
+    else if (gs->currentMinigame == MINIGAME_ARROWS)
     {
-        if (gs->enemies[i].isActive)
-        {
-            SDL_RenderCopy(gs->renderer, gs->enemies[i].texture, NULL, &gs->enemies[i].rect);
-        }
+        DrawArrowMinigame(gs);
     }
 
     // プレイヤーを描画
@@ -56,6 +63,22 @@ void DrawMainStage(GameState *gs)
     char hudText[64];
     sprintf(hudText, "やさい: %d / %d   HP: %d", gs->veggiesCollected, MAX_VEGGIES, gs->player.hp);
     DrawText(gs->renderer, gs->font, hudText, 20, 20);
+}
+
+// ★★★ 新規追加：ミニゲーム2（矢印）の描画関数 ★★★
+void DrawArrowMinigame(GameState *gs)
+{
+    // 画面中央に矢印を並べる
+    int start_x = (1920 - (MAX_ARROWS * 150)) / 2; // 1920は画面幅、150は矢印の幅+間隔
+    int y = 500;
+    int size = 128; // 矢印のサイズ
+
+    for (int i = 0; i < MAX_ARROWS; i++)
+    {
+        SDL_Rect destRect = {start_x + i * 150, y, size, size};
+        // arrowSequenceの値に応じて、対応する矢印テクスチャを描画
+        SDL_RenderCopy(gs->renderer, gs->arrowTextures[gs->arrowSequence[i]], NULL, &destRect);
+    }
 }
 
 void DrawGame(GameState *gs)
