@@ -81,6 +81,6 @@ void DrawGame(GameState *gs)
 
 void DrawTitleScene(GameState *gs)
 {
-    DrawText(gs->renderer, gs->font, "忘れ物を探シニ", 860, 400);
-    DrawText(gs->renderer, gs->font, "パネルをふんで はじめる", 780, 600);
+    DrawText(gs->renderer, gs->font, "忘れ物を探シニ", 960, 400);
+    DrawText(gs->renderer, gs->font, "パネルをふんで はじめる", 960, 600);
 }
