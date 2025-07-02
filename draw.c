@@ -3,6 +3,7 @@
 
 static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y);
 static void DrawTitleScene(GameState *gs);
+static void DrawArrowMinigame(GameState *gs);
 static void DrawMainStage(GameState *gs);
 static void DrawGameOverScene(GameState *gs);
 // UI(文字)描画の補助関数
@@ -28,11 +29,12 @@ void DrawGameOverScene(GameState *gs)
 // 新しい関数：メインステージを描画
 void DrawMainStage(GameState *gs)
 {
-    SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 255); // 背景を黒に
+    SDL_SetRenderDrawColor(gs->renderer, 200, 200, 220, 255); // 背景を黒に
     SDL_RenderClear(gs->renderer);
 
     if (gs->currentMinigame == MINIGAME_VEGGIE)
     {
+        printf(" -> Drawing Veggie Minigame.\n");
         // 野菜を描画
         for (int i = 0; i < MAX_VEGGIES; i++)
         {
@@ -53,6 +55,7 @@ void DrawMainStage(GameState *gs)
     }
     else if (gs->currentMinigame == MINIGAME_ARROWS)
     {
+        printf(" -> Drawing Arrow Minigame.\n");
         DrawArrowMinigame(gs);
     }
 
