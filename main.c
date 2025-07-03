@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     while (gameState.isRunning)
     {
 
-        // ★★★ 各関数に、必要とされる正しい引数を渡す ★★★
+        // 各関数に、必要とされる正しい引数を渡す
 
         // 1. 入力処理：inputStateを更新し、isRunningフラグを操作する
         HandleInput(&inputState, &gameState.isRunning);

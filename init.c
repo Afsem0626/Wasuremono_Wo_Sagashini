@@ -66,7 +66,7 @@ bool InitGame(GameState *gs)
     }
 
     // ウィンドウとレンダラーの作成
-    gs->window = SDL_CreateWindow("おさんぽ", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    gs->window = SDL_CreateWindow("忘れ物を探シニ", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
     gs->renderer = SDL_CreateRenderer(gs->window, -1, SDL_RENDERER_ACCELERATED);
     if (!gs->window || !gs->renderer)
         return false;

@@ -11,7 +11,7 @@ static void UpdateTitleScene(GameState *gs, const InputState *input);
 static void UpdateMainStage(GameState *gs, const InputState *input);
 static void UpdateGameOverScene(GameState *gs, const InputState *input);
 
-// 新しい関数：敵を動かす
+// 敵の動き
 static void UpdateEnemies(GameState *gs)
 {
     int screen_w, screen_h;
@@ -31,7 +31,7 @@ static void UpdateEnemies(GameState *gs)
     }
 }
 
-// 新しい関数：当たり判定の処理
+// 当たり判定の処理
 static void CheckCollisions(GameState *gs)
 {
     // 野菜との当たり判定
@@ -122,7 +122,7 @@ static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b)
     return SDL_HasIntersection(a, b);
 }
 
-// ★★★ 新規追加 ★★★：ステージの状態をリセットする関数
+// ステージの状態をリセットする関数
 static void ResetStage(GameState *gs)
 {
     printf("ステージをリセットします。\n");
@@ -148,7 +148,7 @@ static void ResetStage(GameState *gs)
     }
 }
 
-// タイトル画面のロジック
+// タイトル画面
 static void UpdateTitleScene(GameState *gs, const InputState *input)
 {
     // いずれかのパネルが「押された瞬間」なら、ステージをリセットしてゲーム開始
@@ -156,6 +156,7 @@ static void UpdateTitleScene(GameState *gs, const InputState *input)
     {
         ResetStage(gs); // ゲーム開始前に状態をリセット
         gs->currentScene = SCENE_MAIN_STAGE;
-        gs->currentMinigame = MINIGAME_ARROWS; // ★★★ テストのため、ミニゲーム2を強制的に開始 ★★★
+        // gs->currentMinigame = MINIGAME_VEGGIE;
+        gs->currentMinigame = MINIGAME_ARROWS; // テストのため、ミニゲーム2を強制的に開始
     }
 }

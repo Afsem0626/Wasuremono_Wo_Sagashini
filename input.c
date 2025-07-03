@@ -38,5 +38,5 @@ void HandleInput(InputState *input, bool *isRunning)
     input->left = keyboardState[SDL_SCANCODE_LEFT];
     input->right = keyboardState[SDL_SCANCODE_RIGHT];
 
-    // 今後、ここにDDRマットの押しっぱなし状態の処理も追加できます
+    // 今後、ここにDDRマットの押しっぱなし状態の処理を追加可能
 }

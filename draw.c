@@ -18,7 +18,7 @@ void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, i
     SDL_DestroyTexture(texture);
 }
 
-// 新しい関数：ゲームオーバー画面を描画
+// ゲームオーバー画面を描画
 void DrawGameOverScene(GameState *gs)
 {
     SDL_SetRenderDrawColor(gs->renderer, 80, 0, 0, 255); // 暗い赤色
@@ -26,7 +26,7 @@ void DrawGameOverScene(GameState *gs)
     DrawText(gs->renderer, gs->font, "GAME OVER", 760, 490);
 }
 
-// 新しい関数：メインステージを描画
+// ミニゲーム1を描画
 void DrawMainStage(GameState *gs)
 {
     SDL_SetRenderDrawColor(gs->renderer, 200, 200, 220, 255); // 背景を黒に
@@ -64,11 +64,11 @@ void DrawMainStage(GameState *gs)
 
     // UIを描画
     char hudText[64];
-    sprintf(hudText, "やさい: %d / %d   HP: %d", gs->veggiesCollected, MAX_VEGGIES, gs->player.hp);
+    sprintf(hudText, "回収した野菜: %d / %d   HP: %d", gs->veggiesCollected, MAX_VEGGIES, gs->player.hp);
     DrawText(gs->renderer, gs->font, hudText, 20, 20);
 }
 
-// ★★★ 新規追加：ミニゲーム2（矢印）の描画関数 ★★★
+// ミニゲーム2（矢印）を描画
 void DrawArrowMinigame(GameState *gs)
 {
     // 画面中央に矢印を並べる
