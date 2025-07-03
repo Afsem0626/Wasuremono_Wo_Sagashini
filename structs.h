@@ -36,10 +36,21 @@ typedef enum
 // (InputStateはステップ3から変更なし)
 typedef struct
 {
-    bool up;
-    bool down;
-    bool left;
-    bool right;
+    // 「押しっぱなし」状態を保持する変数 (移動などで使用)
+    bool up_held;
+    bool down_held;
+    bool left_held;
+    bool right_held;
+    bool a_held;
+    bool b_held;
+
+    // 「押された瞬間」を保持する変数 (決定、会話送り、リズムゲームで使用)
+    bool up_pressed;
+    bool down_pressed;
+    bool left_pressed;
+    bool right_pressed;
+    bool a_pressed;
+    bool b_pressed;
 } InputState;
 
 typedef struct

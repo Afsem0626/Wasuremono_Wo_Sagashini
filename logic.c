@@ -63,14 +63,24 @@ static void UpdateMainStage(GameState *gs, const InputState *input)
     // ゲームプレイ中のみ更新
     if (gs->currentScene == SCENE_MAIN_STAGE)
     {
-        // プレイヤー移動
-        if (input->up)
+        // --- ★★★ 動作確認用のprintfを追加 ★★★ ---
+        if (input->up_pressed)
+            printf("UP pressed this frame!\n");
+        if (input->down_pressed)
+            printf("DOWN pressed this frame!\n");
+        if (input->left_pressed)
+            printf("LEFT pressed this frame!\n");
+        if (input->right_pressed)
+            printf("RIGHT pressed this frame!\n");
+
+        // プレイヤー移動（押しっぱなしで動くように _held を使う）
+        if (input->up_held)
             gs->player.rect.y -= PLAYER_SPEED;
-        if (input->down)
+        if (input->down_held)
             gs->player.rect.y += PLAYER_SPEED;
-        if (input->left)
+        if (input->left_held)
             gs->player.rect.x -= PLAYER_SPEED;
-        if (input->right)
+        if (input->right_held)
             gs->player.rect.x += PLAYER_SPEED;
 
         // 敵移動
@@ -110,7 +120,7 @@ void UpdateGame(GameState *gs, const InputState *input)
 static void UpdateGameOverScene(GameState *gs, const InputState *input)
 {
     // いずれかのパネルが「押された瞬間」なら、タイトル画面に戻る
-    if (input->up || input->down || input->left || input->right)
+    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed || input->b_pressed)
     {
         gs->currentScene = SCENE_TITLE;
     }
@@ -152,11 +162,11 @@ static void ResetStage(GameState *gs)
 static void UpdateTitleScene(GameState *gs, const InputState *input)
 {
     // いずれかのパネルが「押された瞬間」なら、ステージをリセットしてゲーム開始
-    if (input->up || input->down || input->left || input->right)
+    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed || input->b_pressed)
     {
         ResetStage(gs); // ゲーム開始前に状態をリセット
         gs->currentScene = SCENE_MAIN_STAGE;
-        // gs->currentMinigame = MINIGAME_VEGGIE;
-        gs->currentMinigame = MINIGAME_ARROWS; // テストのため、ミニゲーム2を強制的に開始
+        gs->currentMinigame = MINIGAME_VEGGIE;
+        // gs->currentMinigame = MINIGAME_ARROWS; // テストのため、ミニゲーム2を強制的に開始
     }
 }
