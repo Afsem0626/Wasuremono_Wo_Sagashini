@@ -71,6 +71,8 @@ void DrawMainStage(GameState *gs)
 // ミニゲーム2（矢印）を描画
 void DrawArrowMinigame(GameState *gs)
 {
+    SDL_SetRenderDrawColor(gs->renderer, 200, 200, 100, 255); // 背景を黄色
+    SDL_RenderClear(gs->renderer);
     // 画面中央に矢印を並べる
     int start_x = (1920 - (MAX_ARROWS * 150)) / 2; // 1920は画面幅、150は矢印の幅+間隔
     int y = 500;

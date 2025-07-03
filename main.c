@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-    // ★★★ GameStateとInputStateを別々の変数として用意する ★★★
+    // GameStateとInputStateを別々の変数として用意する
     GameState gameState = {0};
     InputState inputState = {0};
 
