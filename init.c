@@ -56,7 +56,7 @@ void LoadAssets(GameState *gs)
 bool InitGame(GameState *gs)
 {
     // ライブラリの初期化
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) < 0 ||
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0 ||
         !(IMG_Init(IMG_INIT_PNG)) ||
         TTF_Init() == -1 ||
         Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
@@ -72,8 +72,10 @@ bool InitGame(GameState *gs)
         return false;
 
     // ジョイスティックの準備
+    /*
     if (SDL_NumJoysticks() > 0)
         gs->ddrMat = SDL_JoystickOpen(0);
+    */
 
     // アセット読み込み
     LoadAssets(gs);
@@ -135,10 +137,13 @@ void Cleanup(GameState *gs)
     Mix_FreeChunk(gs->damageSound);
 
     // SDLサブシステムの終了
+    /*
     if (gs->ddrMat)
         SDL_JoystickClose(gs->ddrMat);
     SDL_DestroyRenderer(gs->renderer);
     SDL_DestroyWindow(gs->window);
+
+    */
 
     Mix_CloseAudio();
     TTF_Quit();

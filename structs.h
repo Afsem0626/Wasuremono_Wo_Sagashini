@@ -78,22 +78,25 @@ typedef struct
     // ゲーム状態
     bool isRunning;
     GameScene currentScene;
-
-    InputState input;
     MinigameType currentMinigame;
-    //  オブジェクト
+
+    // ★★★ ここから追加・修正 ★★★
+    int veggiesRequired; // ステージクリアに必要な野菜の数
+    int veggiesCollected;
+    float stageTimer; // ステージの残り時間（秒）
+    // ★★★ ここまで追加・修正 ★★★
+
+    // オブジェクト
     Player player;
     GameObject veggies[MAX_VEGGIES];
     GameObject enemies[MAX_ENEMIES];
-    int veggiesCollected;
+    int arrowSequence[MAX_ARROWS];
+    int arrowPlayerProgress;
 
     // アセット
     TTF_Font *font;
-    Mix_Chunk *damageSound; // 効果音を追加
+    Mix_Chunk *damageSound;
     SDL_Texture *arrowTextures[MAX_ARROWS];
-    // ミニゲーム2の状態
-    int arrowSequence[MAX_ARROWS];
-    int arrowPlayerProgress;
 
 } GameState;
 

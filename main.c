@@ -24,8 +24,11 @@ int main(int argc, char *argv[])
 
         // 各関数に、必要とされる正しい引数を渡す
 
-        // 1. 入力処理：inputStateを更新し、isRunningフラグを操作する
-        HandleInput(&inputState, &gameState.isRunning);
+        // 修正前
+        // HandleInput(&inputState, &gameState.isRunning);
+
+        // 修正後
+        HandleInput(&gameState, &inputState);
 
         // 2. ロジック更新：inputStateを基に、gameStateを更新する
         UpdateGame(&gameState, &inputState);
