@@ -1,5 +1,7 @@
 #include "logic.h"
-#include "sound.h" // sound.hをインクルード
+#include "sound.h"  // sound.hをインクルード
+#include <stdlib.h> // rand(), srand() を使うため
+#include <time.h>   // time() を使うため
 
 const int PLAYER_SPEED = 20;
 
@@ -10,6 +12,66 @@ static void CheckCollisions(GameState *gs);
 static void UpdateTitleScene(GameState *gs, const InputState *input);
 static void UpdateMainStage(GameState *gs, const InputState *input);
 static void UpdateGameOverScene(GameState *gs, const InputState *input);
+
+// logic.c の先頭に、ミニゲーム2専用の更新関数を追加
+static void UpdateArrowMinigame(GameState *gs, const InputState *input)
+{
+    int expected_input = gs->arrowSequence[gs->arrowPlayerProgress];
+    bool correct_input = false;
+    bool wrong_input = false;
+
+    // どのパネルが「押された瞬間」かチェック
+    if (input->up_pressed)
+    {
+        if (expected_input == ARROW_UP)
+            correct_input = true;
+        else
+            wrong_input = true;
+    }
+    if (input->down_pressed)
+    {
+        if (expected_input == ARROW_DOWN)
+            correct_input = true;
+        else
+            wrong_input = true;
+    }
+    if (input->left_pressed)
+    {
+        if (expected_input == ARROW_LEFT)
+            correct_input = true;
+        else
+            wrong_input = true;
+    }
+    if (input->right_pressed)
+    {
+        if (expected_input == ARROW_RIGHT)
+            correct_input = true;
+        else
+            wrong_input = true;
+    }
+
+    // 正解だった場合
+    if (correct_input)
+    {
+        gs->arrowPlayerProgress++;
+        // ここで正解の効果音を鳴らす
+
+        if (gs->arrowPlayerProgress >= MAX_ARROWS)
+        {
+            printf("ミニゲーム2 クリア！\n");
+            // 実際には次のミニゲームへ移行する
+            gs->currentMinigame = MINIGAME_VEGGIE;
+            ResetStage(gs);
+        }
+    }
+    // 不正解だった場合
+    else if (wrong_input)
+    {
+        gs->player.hp--;
+        PlaySound(gs->damageSound);
+        gs->arrowPlayerProgress = 0; // 最初からやり直し
+    }
+}
 
 // 敵の動き
 static void UpdateEnemies(GameState *gs)
@@ -60,41 +122,22 @@ static void CheckCollisions(GameState *gs)
 // UpdateGameを修正
 static void UpdateMainStage(GameState *gs, const InputState *input)
 {
-    // ゲームプレイ中のみ更新
-    if (gs->currentScene == SCENE_MAIN_STAGE)
+    if (gs->currentMinigame == MINIGAME_VEGGIE)
     {
-        // --- ★★★ 動作確認用のprintfを追加 ★★★ ---
-        if (input->up_pressed)
-            printf("UP pressed this frame!\n");
-        if (input->down_pressed)
-            printf("DOWN pressed this frame!\n");
-        if (input->left_pressed)
-            printf("LEFT pressed this frame!\n");
-        if (input->right_pressed)
-            printf("RIGHT pressed this frame!\n");
-
-        // プレイヤー移動（押しっぱなしで動くように _held を使う）
-        if (input->up_held)
-            gs->player.rect.y -= PLAYER_SPEED;
-        if (input->down_held)
-            gs->player.rect.y += PLAYER_SPEED;
-        if (input->left_held)
-            gs->player.rect.x -= PLAYER_SPEED;
-        if (input->right_held)
-            gs->player.rect.x += PLAYER_SPEED;
-
-        // 敵移動
+        UpdatePlayer(gs, input);
         UpdateEnemies(gs);
-
-        // 当たり判定
         CheckCollisions(gs);
-
-        // ゲームオーバー判定
-        if (gs->player.hp <= 0)
-        {
-            gs->currentScene = SCENE_GAME_OVER;
-            printf("ゲームオーバー！\n");
-        }
+    }
+    else if (gs->currentMinigame == MINIGAME_ARROWS)
+    {
+        // ★★★ ミニゲーム2の更新関数を呼び出す ★★★
+        UpdateArrowMinigame(gs, input);
+    }
+    // ゲームオーバー判定
+    if (gs->player.hp <= 0)
+    {
+        gs->currentScene = SCENE_GAME_OVER;
+        printf("ゲームオーバー！\n");
     }
 }
 
@@ -138,6 +181,7 @@ static void ResetStage(GameState *gs)
     printf("ステージをリセットします。\n");
     gs->player.hp = 5; // HPを初期値に戻す
     gs->veggiesCollected = 0;
+    gs->arrowPlayerProgress = 0; // 進捗を0に戻す
 
     // 野菜の位置と状態をリセット
     for (int i = 0; i < MAX_VEGGIES; i++)
@@ -156,6 +200,14 @@ static void ResetStage(GameState *gs)
         SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
         gs->enemies[i].rect.x = screen_w + (i * 400);
     }
+
+    // 0から3の乱数を生成 (ARROW_UP〜ARROW_RIGHT)
+    // 矢印をランダムに出現させる
+    srand(time(NULL));
+    for (int i = 0; i < MAX_ARROWS; i++)
+    {
+        gs->arrowSequence[i] = rand() % 4;
+    }
 }
 
 // タイトル画面
@@ -168,5 +220,6 @@ static void UpdateTitleScene(GameState *gs, const InputState *input)
         gs->currentScene = SCENE_MAIN_STAGE;
         gs->currentMinigame = MINIGAME_VEGGIE;
         // gs->currentMinigame = MINIGAME_ARROWS; // テストのため、ミニゲーム2を強制的に開始
+        printf("ゲーム開始！\n");
     }
 }

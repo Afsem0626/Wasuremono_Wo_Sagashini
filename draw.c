@@ -81,8 +81,19 @@ void DrawArrowMinigame(GameState *gs)
     for (int i = 0; i < MAX_ARROWS; i++)
     {
         SDL_Rect destRect = {start_x + i * 150, y, size, size};
-        // arrowSequenceの値に応じて、対応する矢印テクスチャを描画
-        SDL_RenderCopy(gs->renderer, gs->arrowTextures[gs->arrowSequence[i]], NULL, &destRect);
+        SDL_Texture *tex = gs->arrowTextures[gs->arrowSequence[i]];
+
+        // 正解済みの矢印は緑色にする
+        if (i < gs->arrowPlayerProgress)
+        {
+            SDL_SetTextureColorMod(tex, 100, 255, 100); // 緑色
+        }
+        else
+        {
+            SDL_SetTextureColorMod(tex, 255, 255, 255); // 元の色
+        }
+
+        SDL_RenderCopy(gs->renderer, tex, NULL, &destRect);
     }
 }
 

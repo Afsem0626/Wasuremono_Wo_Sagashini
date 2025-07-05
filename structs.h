@@ -93,6 +93,7 @@ typedef struct
     SDL_Texture *arrowTextures[MAX_ARROWS];
     // ミニゲーム2の状態
     int arrowSequence[MAX_ARROWS];
+    int arrowPlayerProgress;
 
 } GameState;
 
