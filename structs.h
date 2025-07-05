@@ -92,9 +92,15 @@ typedef struct
     int arrowSequence[MAX_ARROWS];
     int arrowPlayerProgress;
 
+    // ★★★ アニメーション用変数を追加 ★★★
+    bool isArrowAnimating;     // アニメーション中かどうかのフラグ
+    float arrowAnimationTimer; // アニメーションの進行時間タイマー
+    int clearedArrowIndex;     // どの矢印が消えるアニメーション中か
+
     // アセット
     TTF_Font *font;
     Mix_Chunk *damageSound;
+    SDL_Texture *titleTexture; // ★★★ この行を追加 ★★★
     SDL_Texture *arrowTextures[MAX_ARROWS];
     SDL_Texture *doorLockedTexture;
     SDL_Texture *doorUnlockedTexture;

@@ -139,8 +139,19 @@ void DrawGame(GameState *gs)
 
 void DrawTitleScene(GameState *gs)
 {
-    DrawText(gs->renderer, gs->font, "忘れ物を探シニ", 960, 400);
-    DrawText(gs->renderer, gs->font, "パネルをふんで はじめる", 960, 600);
+    if (gs->titleTexture != NULL)
+    {
+        // 第3引数(コピー元)と第4引数(コピー先)をNULLにすると、
+        // テクスチャがウィンドウ全体に引き伸ばされて表示されます。
+        SDL_RenderCopy(gs->renderer, gs->titleTexture, NULL, NULL);
+    }
+    else
+    {
+        // もし画像の読み込みに失敗していたら、黒い画面にエラー表示
+        SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 255);
+        SDL_RenderClear(gs->renderer);
+        DrawText(gs->renderer, gs->font, "タイトル画像が見つかりません", 600, 500);
+    }
 }
 
 static void DrawHUD(GameState *gs)

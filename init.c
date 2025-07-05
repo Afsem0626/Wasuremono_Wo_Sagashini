@@ -29,6 +29,8 @@ void LoadAssets(GameState *gs)
     if (!gs->font)
     { /* エラー処理 */
     }
+    // タイトル画面
+    gs->titleTexture = LoadTexture("assets/title_screen.png", gs->renderer);
 
     // プレイヤー画像
     gs->player.texture = LoadTexture("player.png", gs->renderer);
@@ -73,7 +75,16 @@ bool InitGame(GameState *gs)
     }
 
     // ウィンドウとレンダラーの作成
-    gs->window = SDL_CreateWindow("忘れ物を探シニ", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    gs->window = SDL_CreateWindow("Wasuremono Wo Sagashini",
+                                  SDL_WINDOWPOS_UNDEFINED,
+                                  SDL_WINDOWPOS_UNDEFINED,
+                                  1920,
+                                  1080,
+                                  SDL_WINDOW_SHOWN);
+    if (!gs->window)
+    { /* エラー処理 */
+        return false;
+    }
     gs->renderer = SDL_CreateRenderer(gs->window, -1, SDL_RENDERER_SOFTWARE);
     if (!gs->window || !gs->renderer)
         return false;
