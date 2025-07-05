@@ -213,6 +213,8 @@ static void ResetStage(GameState *gs)
 
     // --- プレイヤーの状態をリセット ---
     gs->player.hp = 5; // HPを初期値(5)に戻す
+    // クリアに必要な野菜の数を設定 (今は定数MAX_VEGGIESを使う)
+    gs->veggiesRequired = MAX_VEGGIES;
 
     // 画面サイズを取得して、プレイヤーを初期位置（左側の中央）に配置
     int screen_w, screen_h;

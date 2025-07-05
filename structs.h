@@ -73,7 +73,7 @@ typedef struct
     // SDL関連
     SDL_Window *window;
     SDL_Renderer *renderer;
-    SDL_Joystick *ddrMat;
+    // SDL_Joystick *ddrMat;
 
     // ゲーム状態
     bool isRunning;

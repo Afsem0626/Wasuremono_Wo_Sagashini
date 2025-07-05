@@ -1,5 +1,7 @@
 #include "init.h"
 #include <stdio.h>
+#include <stdlib.h> // ★★★ srand(), rand() のために追加 ★★★
+#include <time.h>   // ★★★ time() のために追加 ★★★
 
 // テクスチャ読み込みの補助関数
 SDL_Texture *LoadTexture(const char *path, SDL_Renderer *renderer)
@@ -55,6 +57,7 @@ void LoadAssets(GameState *gs)
 
 bool InitGame(GameState *gs)
 {
+    srand(time(NULL));
     // ライブラリの初期化
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0 ||
         !(IMG_Init(IMG_INIT_PNG)) ||
