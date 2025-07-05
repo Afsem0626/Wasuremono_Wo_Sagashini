@@ -38,6 +38,10 @@ void LoadAssets(GameState *gs)
     gs->veggies[1].texture = LoadTexture("vegetables/eggplant.png", gs->renderer);
     gs->veggies[2].texture = LoadTexture("vegetables/tomato.png", gs->renderer);
 
+    // 扉の画像
+    gs->doorLockedTexture = LoadTexture("assets/door_locked.png", gs->renderer);
+    gs->doorUnlockedTexture = LoadTexture("assets/door_unlocked.png", gs->renderer);
+
     // 敵画像
     gs->enemies[0].texture = LoadTexture("enemies/enemy.png", gs->renderer);
     gs->enemies[1].texture = gs->enemies[0].texture; // 2体目は同じ画像を使う

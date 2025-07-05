@@ -41,6 +41,10 @@ void UpdateGame(GameState *gs, const InputState *input)
         break;
     case SCENE_GAME_OVER:
         UpdateGameOverScene(gs, input);
+
+    case SCENE_NOVEL: // ★★★ この行を追加 ★★★
+        // 今はまだ何もしない
+        break;
         break;
     }
 }
@@ -72,10 +76,11 @@ static void UpdateVeggieMinigame(GameState *gs, const InputState *input)
     UpdateEnemies(gs);
     CheckCollisions(gs);
 
-    if (gs->veggiesCollected >= gs->veggiesRequired)
+    if (gs->veggiesCollected >= gs->veggiesRequired && gs->door.doorState == DOOR_LOCKED)
     {
-        printf("ミニゲーム1 クリア！\n");
-        StartNewRandomMinigame(gs);
+        printf("全ての野菜を回収！ 扉のロックが解除された！\n");
+        gs->door.doorState = DOOR_UNLOCKED;
+        // ここでロック解除の効果音を鳴らすと良い
     }
     if (gs->player.hp <= 0)
         gs->currentScene = SCENE_GAME_OVER;
@@ -122,7 +127,16 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
         if (gs->arrowPlayerProgress >= MAX_ARROWS)
         {
             printf("ミニゲーム2 クリア！\n");
-            StartNewRandomMinigame(gs);
+            gs->minigamesCleared++; // クリア数を1増やす
+            if (gs->minigamesCleared >= gs->minigamesRequired)
+            {
+                gs->currentScene = SCENE_ENDING; // 目標数に達したらエンディングへ
+                printf("ゲームクリア！\n");
+            }
+            else
+            {
+                StartNewRandomMinigame(gs); // まだなら次のミニゲームへ
+            }
         }
     }
     else if (wrong_input)
@@ -177,6 +191,22 @@ static void CheckCollisions(GameState *gs)
             gs->veggiesCollected++;
         }
     }
+
+    if (gs->door.doorState == DOOR_UNLOCKED && DetectCollision(&gs->player.rect, &gs->door.rect))
+    {
+        printf("扉に入った！ ミニゲーム1 クリア！\n");
+        gs->minigamesCleared++; // クリア数を1増やす
+        if (gs->minigamesCleared >= gs->minigamesRequired)
+        {
+            gs->currentScene = SCENE_ENDING; // 目標数に達したらエンディングへ
+            printf("ゲームクリア！\n");
+        }
+        else
+        {
+            StartNewRandomMinigame(gs); // まだなら次のミニゲームへ
+        }
+    }
+
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         if (gs->enemies[i].isActive && DetectCollision(&gs->player.rect, &gs->enemies[i].rect))
@@ -192,6 +222,7 @@ static void CheckCollisions(GameState *gs)
 // ★★★ 新しく追加するプレイヤー移動関数 ★★★
 static void UpdatePlayer(GameState *gs, const InputState *input)
 {
+    // 1. これまでの移動処理
     if (input->up_held)
         gs->player.rect.y -= PLAYER_SPEED;
     if (input->down_held)
@@ -200,6 +231,37 @@ static void UpdatePlayer(GameState *gs, const InputState *input)
         gs->player.rect.x -= PLAYER_SPEED;
     if (input->right_held)
         gs->player.rect.x += PLAYER_SPEED;
+
+    // --- ★★★ ここから境界チェック処理を追加 ★★★ ---
+
+    // 2. 画面のサイズを取得
+    int screen_w, screen_h;
+    // GameState構造体からrendererポインタを渡す
+    SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
+
+    // 3. 左右の壁との判定
+    // 左の壁
+    if (gs->player.rect.x < 0)
+    {
+        gs->player.rect.x = 0;
+    }
+    // 右の壁 (プレイヤーの幅も考慮する)
+    if (gs->player.rect.x + gs->player.rect.w > screen_w)
+    {
+        gs->player.rect.x = screen_w - gs->player.rect.w;
+    }
+
+    // 4. 上下の壁との判定
+    // 上の壁
+    if (gs->player.rect.y < 0)
+    {
+        gs->player.rect.y = 0;
+    }
+    // 下の壁 (プレイヤーの高さも考慮する)
+    if (gs->player.rect.y + gs->player.rect.h > screen_h)
+    {
+        gs->player.rect.y = screen_h - gs->player.rect.h;
+    }
 }
 
 static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b)
@@ -211,8 +273,16 @@ static void ResetStage(GameState *gs)
 {
     printf("ステージをリセットします。\n");
 
+    // ★★★ ゲーム開始時・リスタート時にクリア状況をリセット ★★★
+    if (gs->currentScene == SCENE_TITLE)
+    { // タイトルから始める時だけリセット
+        gs->minigamesCleared = 0;
+        // 難易度に応じて変更する（今は仮に4つとする）
+        gs->minigamesRequired = 4;
+    }
+
     // --- プレイヤーの状態をリセット ---
-    gs->player.hp = 5; // HPを初期値(5)に戻す
+    gs->player.hp = 2;
     // クリアに必要な野菜の数を設定 (今は定数MAX_VEGGIESを使う)
     gs->veggiesRequired = MAX_VEGGIES;
 
@@ -231,6 +301,15 @@ static void ResetStage(GameState *gs)
         gs->veggies[i].rect.x = 600 + (rand() % 800);
         gs->veggies[i].rect.y = 150 + (rand() % 700);
     }
+
+    // ★★★ 扉の状態を「ロックされた」状態で初期化 ★★★
+    gs->door.doorState = DOOR_LOCKED;
+    // 扉の初期位置を固定（例：画面右端の中央）
+    SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
+    gs->door.rect = (SDL_Rect){screen_w - 150, (screen_h - 128) / 2, 128, 128};
+
+    // 扉を閉めたままに
+    gs->door.isActive = false;
 
     // --- 敵の状態をリセット ---
     for (int i = 0; i < MAX_ENEMIES; i++)

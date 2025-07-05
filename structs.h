@@ -8,14 +8,17 @@
 #include <stdbool.h>
 
 #define MAX_VEGGIES 3
-#define MAX_ENEMIES 2 // 敵の数を定義
+#define MAX_ENEMIES 2
+#define MAX_ARROWS 4
 
-// ゲームの場面（シーン）を定義
+// --- 最初に、他の構造体で使われる型（enum）を定義 ---
 typedef enum
 {
-    SCENE_TITLE, // タイトル画面
+    SCENE_TITLE,
     SCENE_MAIN_STAGE,
-    SCENE_GAME_OVER
+    SCENE_GAME_OVER,
+    SCENE_NOVEL,
+    SCENE_ENDING, // ★★★ 追加 ★★
 } GameScene;
 
 typedef enum
@@ -29,67 +32,63 @@ typedef enum
     ARROW_UP,
     ARROW_DOWN,
     ARROW_LEFT,
-    ARROW_RIGHT,
-    MAX_ARROWS
+    ARROW_RIGHT
 } ArrowDir;
 
-// (InputStateはステップ3から変更なし)
+typedef enum
+{
+    DOOR_LOCKED,
+    DOOR_UNLOCKED
+} DoorState;
+
+// --- 次に、基本的な構造体を定義 ---
 typedef struct
 {
-    // 「押しっぱなし」状態を保持する変数 (移動などで使用)
-    bool up_held;
-    bool down_held;
-    bool left_held;
-    bool right_held;
-    bool a_held;
-    bool b_held;
-
-    // 「押された瞬間」を保持する変数 (決定、会話送り、リズムゲームで使用)
-    bool up_pressed;
-    bool down_pressed;
-    bool left_pressed;
-    bool right_pressed;
-    bool a_pressed;
-    bool b_pressed;
+    bool up_held, down_held, left_held, right_held, a_held, b_held;
+    bool up_pressed, down_pressed, left_pressed, right_pressed, a_pressed, b_pressed;
 } InputState;
 
 typedef struct
 {
-    bool isActive;
-    SDL_Rect rect;
-    SDL_Texture *texture;
-    int vx, vy; // 速度
+    bool isActive;        // このオブジェクトが有効か
+    SDL_Rect rect;        // 位置とサイズ
+    SDL_Texture *texture; // 画像
+    int vx, vy;           // 速度
+    DoorState doorState;  // ★扉専用の状態
 } GameObject;
 
 typedef struct
 {
     SDL_Rect rect;
     SDL_Texture *texture;
-    int hp; // HPを追加
+    int hp;
 } Player;
 
+// --- 最後に、上記全てを内包するGameState構造体を定義 ---
 typedef struct
 {
     // SDL関連
     SDL_Window *window;
     SDL_Renderer *renderer;
-    // SDL_Joystick *ddrMat;
+    SDL_Joystick *ddrMat;
 
     // ゲーム状態
     bool isRunning;
     GameScene currentScene;
     MinigameType currentMinigame;
-
-    // ★★★ ここから追加・修正 ★★★
-    int veggiesRequired; // ステージクリアに必要な野菜の数
+    int veggiesRequired;
     int veggiesCollected;
-    float stageTimer; // ステージの残り時間（秒）
-    // ★★★ ここまで追加・修正 ★★★
+    float stageTimer;
+
+    int minigamesRequired; // クリアに必要なミニゲーム数
+    int minigamesCleared;  // クリアしたミニゲーム数
 
     // オブジェクト
+    InputState input;
     Player player;
     GameObject veggies[MAX_VEGGIES];
     GameObject enemies[MAX_ENEMIES];
+    GameObject door; // 扉もGameObjectとして管理
     int arrowSequence[MAX_ARROWS];
     int arrowPlayerProgress;
 
@@ -97,6 +96,8 @@ typedef struct
     TTF_Font *font;
     Mix_Chunk *damageSound;
     SDL_Texture *arrowTextures[MAX_ARROWS];
+    SDL_Texture *doorLockedTexture;
+    SDL_Texture *doorUnlockedTexture;
 
 } GameState;
 
