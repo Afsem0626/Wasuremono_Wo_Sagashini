@@ -88,6 +88,8 @@ bool InitGame(GameState *gs)
     gs->renderer = SDL_CreateRenderer(gs->window, -1, SDL_RENDERER_SOFTWARE);
     if (!gs->window || !gs->renderer)
         return false;
+    // レンダラーで半透明の描画を有効にする
+    SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_BLEND);
 
     // ジョイスティックの準備
     /*

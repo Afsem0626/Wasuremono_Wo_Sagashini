@@ -10,6 +10,7 @@
 #define MAX_VEGGIES 3
 #define MAX_ENEMIES 2
 #define MAX_ARROWS 4
+#define ARROW_ANIMATION_DURATION 0.3f // 矢印アニメーションの時間（0.3秒）
 
 // --- 最初に、他の構造体で使われる型（enum）を定義 ---
 typedef enum

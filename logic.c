@@ -90,10 +90,34 @@ static void UpdateVeggieMinigame(GameState *gs, const InputState *input)
 
 static void UpdateArrowMinigame(GameState *gs, const InputState *input)
 {
+    // --- アニメーション中の処理 ---
+    if (gs->isArrowAnimating)
+    {
+        // タイマーを進める (1/60.0fは60FPSを仮定)
+        gs->arrowAnimationTimer += (1.0f / 60.0f);
+
+        // アニメーションが完了したら
+        if (gs->arrowAnimationTimer >= ARROW_ANIMATION_DURATION)
+        {
+            gs->isArrowAnimating = false; // アニメーション終了
+            gs->arrowPlayerProgress++;    // プレイヤーの進捗をここで初めて進める
+
+            // これでミニゲームクリアか判定
+            if (gs->arrowPlayerProgress >= MAX_ARROWS)
+            {
+                printf("ミニゲーム2 クリア！\n");
+                StartNewRandomMinigame(gs);
+            }
+        }
+        return; // アニメーション中は以降の入力処理を行わない
+    }
+
+    // --- 入力待ちの処理 ---
     int expected_input = gs->arrowSequence[gs->arrowPlayerProgress];
     bool correct_input = false;
     bool wrong_input = false;
 
+    // (入力判定ロジックは同じ)
     if (input->up_pressed)
     {
         if (expected_input == ARROW_UP)
@@ -123,30 +147,23 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
             wrong_input = true;
     }
 
+    // 正解だった場合の処理
     if (correct_input)
     {
-        gs->arrowPlayerProgress++;
-        if (gs->arrowPlayerProgress >= MAX_ARROWS)
-        {
-            printf("ミニゲーム2 クリア！\n");
-            gs->minigamesCleared++; // クリア数を1増やす
-            if (gs->minigamesCleared >= gs->minigamesRequired)
-            {
-                gs->currentScene = SCENE_ENDING; // 目標数に達したらエンディングへ
-                printf("ゲームクリア！\n");
-            }
-            else
-            {
-                StartNewRandomMinigame(gs); // まだなら次のミニゲームへ
-            }
-        }
+        // ★★★ すぐに進捗を進めるのではなく、アニメーションを開始する ★★★
+        gs->isArrowAnimating = true;
+        gs->arrowAnimationTimer = 0.0f; // タイマーをリセット
+        // 正解の効果音を鳴らす
     }
+    // 不正解だった場合の処理
     else if (wrong_input)
     {
-        // gs->player.hp--;
-        // PlaySound(gs->damageSound);
-        gs->arrowPlayerProgress = 0;
+        // gs->player.hp--; // HPは減らさない
+        PlaySound(gs->damageSound);
+        gs->arrowPlayerProgress = 0; // 最初からやり直し
     }
+
+    // HPが0になったらゲームオーバー
     if (gs->player.hp <= 0)
         gs->currentScene = SCENE_GAME_OVER;
 }
