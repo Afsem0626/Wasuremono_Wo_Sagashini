@@ -1,5 +1,5 @@
 # 最終的に生成する実行ファイル名
-EXEC = ./step14_test
+EXEC = ./step15_test
 
 # 使用するCコンパイラ
 CC = gcc

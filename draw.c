@@ -130,6 +130,9 @@ void DrawGame(GameState *gs)
     case SCENE_NOVEL: // ★★★ この行を追加 ★★★
         // 今はまだ何もしない
         break;
+    case SCENE_ENDING:
+        // UpdateEndingScene(gs, input); // 後で作成するエンディング用の更新関数を呼ぶ
+        break;
     }
     SDL_RenderPresent(gs->renderer);
 }
