@@ -10,9 +10,7 @@ static void DrawVeggieMinigame(GameState *gs);
 static void DrawArrowMinigame(GameState *gs);
 static void DrawHUD(GameState *gs);
 
-// ==========================================================
-// 公開関数 (main.c から呼び出される司令塔)
-// ==========================================================
+// 公開関数 (main.c から呼び出される関数)
 void DrawGame(GameState *gs)
 {
     // 背景をクリア
@@ -25,6 +23,9 @@ void DrawGame(GameState *gs)
     case SCENE_TITLE:
         DrawTitleScene(gs);
         break;
+    case SCENE_DIFFICULTY:
+        DrawDifficultyScene(gs);
+        break;
     case SCENE_MAIN_STAGE:
         DrawMainStage(gs);
         break;
@@ -32,11 +33,48 @@ void DrawGame(GameState *gs)
         DrawGameOverScene(gs);
         break;
     case SCENE_NOVEL:
+        // 未実装
+        break;
     case SCENE_ENDING:
         // 未実装
         break;
     }
     SDL_RenderPresent(gs->renderer);
+}
+
+void DrawDifficultyScene(GameState *gs)
+{
+    // 難易度の選択肢を文字列の配列として定義
+    const char *difficulty_names[] = {
+        "昼 (Easy)",
+        "夕方 (Normal)",
+        "深夜 (Hard)",
+        "異空 (Expert)"};
+
+    // 画面をクリア（背景色）
+    SDL_SetRenderDrawColor(gs->renderer, 30, 30, 50, 255); // 深い青色
+    SDL_RenderClear(gs->renderer);
+
+    // ヘッダーテキストを描画
+    DrawText(gs->renderer, gs->font, "難易度を選んでください", 650, 200);
+
+    // 各選択肢をループで描画
+    for (int i = 0; i < DIFFICULTY_COUNT; i++)
+    {
+        // 現在選択されている項目かどうかを判定
+        if (i == gs->difficultySelection)
+        {
+            // DrawText関数を一時的に改造するか、色を引数で渡せるようにするとより良い
+            // ここでは簡易的に、選択されている項目を示すカーソルを描画する
+            DrawText(gs->renderer, gs->font, "→", 700, 400 + i * 100);
+            DrawText(gs->renderer, gs->font, difficulty_names[i], 750, 400 + i * 100);
+        }
+        else
+        {
+            // 選択されていない項目は通常の色で描画
+            DrawText(gs->renderer, gs->font, difficulty_names[i], 750, 400 + i * 100);
+        }
+    }
 }
 
 // 以下はこのファイル内だけで使われる静的（static）関数

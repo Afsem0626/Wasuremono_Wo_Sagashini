@@ -135,6 +135,7 @@ bool InitGame(GameState *gs)
     gs->arrowSequence[3] = ARROW_UP;
     // 初期シーンをタイトル画面に設定
     gs->currentScene = SCENE_TITLE;
+    gs->difficultySelection = 0; // 難易度選択用カーソル
     // gs->currentScene = SCENE_MAIN_STAGE;
     return true;
 }

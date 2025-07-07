@@ -16,6 +16,7 @@
 typedef enum
 {
     SCENE_TITLE,
+    SCENE_DIFFICULTY,
     SCENE_MAIN_STAGE,
     SCENE_GAME_OVER,
     SCENE_NOVEL,
@@ -28,7 +29,8 @@ typedef enum
     DIFF_DAY,
     DIFF_EVENING,
     DIFF_NIGHT,
-    DIFF_IKUU
+    DIFF_IKUU,
+    DIFFICULTY_COUNT,
 } Difficulty;
 
 typedef enum
@@ -83,7 +85,8 @@ typedef struct
     // ゲーム状態
     bool isRunning;
     GameScene currentScene;
-    Difficulty difficulty; // 難易度
+    Difficulty difficulty;   // 難易度
+    int difficultySelection; // カーソル用の選択肢
     MinigameType currentMinigame;
     int veggiesRequired;
     int veggiesCollected;

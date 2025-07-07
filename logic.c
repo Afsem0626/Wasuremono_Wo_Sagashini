@@ -7,6 +7,7 @@
 const int PLAYER_SPEED = 20;
 
 static void UpdateTitleScene(GameState *gs, const InputState *input);
+static void UpdateDifficultyScene(GameState *gs, const InputState *input);
 static void UpdateGameOverScene(GameState *gs, const InputState *input);
 static void UpdateVeggieMinigame(GameState *gs, const InputState *input);
 static void UpdateArrowMinigame(GameState *gs, const InputState *input);
@@ -21,10 +22,14 @@ static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b);
 
 void UpdateGame(GameState *gs, const InputState *input)
 {
+
     switch (gs->currentScene)
     {
     case SCENE_TITLE:
         UpdateTitleScene(gs, input);
+        break;
+    case SCENE_DIFFICULTY: // 難易度選択
+        UpdateDifficultyScene(gs, input);
         break;
     case SCENE_MAIN_STAGE:
 
@@ -66,8 +71,33 @@ static void UpdateTitleScene(GameState *gs, const InputState *input)
 {
     if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed)
     {
+        // StartNewRandomMinigame(gs);
+        gs->currentScene = SCENE_DIFFICULTY;
+    }
+}
+
+static void UpdateDifficultyScene(GameState *gs, const InputState *input)
+{
+    // 上が押されたらカーソルを一つ上に（ループする）
+    if (input->up_pressed)
+    {
+        gs->difficultySelection = (gs->difficultySelection - 1 + DIFFICULTY_COUNT) % DIFFICULTY_COUNT;
+    }
+    if (input->down_pressed)
+    {
+        gs->difficultySelection = (gs->difficultySelection + 1) % DIFFICULTY_COUNT;
+    }
+
+    // 決定ボタン（Aボタンなど）が押されたら
+    if (input->a_pressed)
+    {
+        // 選択されているカーソル位置を、実際の難易度として設定
+        gs->difficulty = (Difficulty)gs->difficultySelection;
+
+        // ステージをリセットしてゲームを開始
         StartNewRandomMinigame(gs);
         gs->currentScene = SCENE_MAIN_STAGE;
+        printf("難易度 %d でゲーム開始！\n", gs->difficulty);
     }
 }
 
