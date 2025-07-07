@@ -27,6 +27,17 @@ void UpdateGame(GameState *gs, const InputState *input)
         UpdateTitleScene(gs, input);
         break;
     case SCENE_MAIN_STAGE:
+
+        // タイマーを減らす処理
+        gs->stageTimer -= (1.0f / 60.0f); // 60FPSを仮定
+
+        // 時間切れでゲームオーバーになる判定
+        if (gs->stageTimer <= 0)
+        {
+            gs->currentScene = SCENE_GAME_OVER;
+            printf("時間切れ！ゲームオーバー！\n");
+            break; // 時間切れなので、このフレームの他の処理は行わない
+        }
         // メインステージの中では、さらにミニゲームの種類で処理を分ける
         if (gs->currentMinigame == MINIGAME_VEGGIE)
         {
@@ -287,6 +298,30 @@ static void ResetStage(GameState *gs)
 {
     printf("ステージをリセットします。\n");
 
+    switch (gs->difficulty)
+    {
+    case DIFF_IKUU:
+        gs->player.hp = 3;
+        gs->veggiesRequired = 5;
+        gs->minigamesRequired = 5;
+        gs->stageTimer = 20.0f;
+        break;
+    case DIFF_NIGHT:
+        gs->player.hp = 5;
+        gs->veggiesRequired = 4;
+        gs->minigamesRequired = 4;
+        gs->stageTimer = 25.0f;
+        break;
+    // ... 他の難易度も同様に設定 ...
+    default: // 昼 or 夕方
+        gs->player.hp = 5;
+        gs->veggiesRequired = (gs->difficulty == DIFF_DAY) ? 2 : 3;
+        gs->minigamesRequired = 4;
+        gs->stageTimer = 30.0f;
+        break;
+    }
+
+    gs->minigamesCleared = 0; // クリア数は常に0にリセット
     //  ゲーム開始時・リスタート時にクリア状況をリセット
     if (gs->currentScene == SCENE_TITLE)
     { // タイトルから始める時だけリセット

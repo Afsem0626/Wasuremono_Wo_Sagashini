@@ -1,7 +1,7 @@
-#include "init.h"  // GameState, Playerなどの定義を含む
-#include "input.h" // InputStateの定義とHandleInputの宣言を含む
-#include "logic.h" // UpdateGameの宣言を含む
-#include "draw.h"  // DrawGameの宣言を含む
+#include "init.h"
+#include "input.h"
+#include "logic.h"
+#include "draw.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,15 +26,16 @@ int main(int argc, char *argv[])
         // HandleInput(&inputState, &gameState.isRunning);
 
         // 修正後
+        // 入力処理
         HandleInput(&gameState, &inputState);
 
-        // 2. ロジック更新：inputStateを基に、gameStateを更新する
+        // ロジック更新：inputStateを基に、gameStateを更新する
         UpdateGame(&gameState, &inputState);
 
-        // 3. 描画：現在のgameStateを基に画面を描く
+        // 描画：現在のgameStateを元に画面を描く
         DrawGame(&gameState);
 
-        // 負荷軽減
+        // 負荷軽減のためにディレイをかけるぜ
         SDL_Delay(16);
     }
 
