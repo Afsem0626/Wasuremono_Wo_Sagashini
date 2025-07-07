@@ -334,20 +334,38 @@ static void ResetStage(GameState *gs)
         gs->player.hp = 3;
         gs->veggiesRequired = 5;
         gs->minigamesRequired = 5;
-        gs->stageTimer = 20.0f;
+        gs->stageTimer = 15.0f;
+        gs->enemies[0].isActive = true;
+        gs->enemies[0].vx = -20; // 速い
+        gs->enemies[1].isActive = true;
+        gs->enemies[1].vx = -12; // 少し速い
         break;
     case DIFF_NIGHT:
         gs->player.hp = 5;
         gs->veggiesRequired = 4;
         gs->minigamesRequired = 4;
         gs->stageTimer = 25.0f;
+        gs->enemies[0].isActive = true;
+        gs->enemies[0].vx = -10; // 速い
+        gs->enemies[1].isActive = true;
+        gs->enemies[1].vx = -8; // 少し速い
         break;
-    // ... 他の難易度も同様に設定 ...
-    default: // 昼 or 夕方
+    case DIFF_EVENING:
         gs->player.hp = 5;
-        gs->veggiesRequired = (gs->difficulty == DIFF_DAY) ? 2 : 3;
-        gs->minigamesRequired = 4;
-        gs->stageTimer = 30.0f;
+        gs->veggiesRequired = 3;
+        // 敵の設定
+        gs->enemies[0].isActive = true; // 1体だけ出現
+        gs->enemies[0].vx = -7;         // 普通の速さ
+        gs->enemies[1].isActive = false;
+        break;
+    default: // DIFFICULTY_DAY (昼)
+        gs->player.hp = 5;
+        gs->veggiesRequired = 2;
+        // 敵の設定
+        gs->enemies[0].isActive = true; // 1体だけ出現
+        gs->enemies[0].vx = -5;         // 遅い
+        gs->enemies[1].isActive = false;
+        break;
         break;
     }
 
