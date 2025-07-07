@@ -12,7 +12,7 @@
 #define MAX_ARROWS 4
 #define ARROW_ANIMATION_DURATION 0.3f // 矢印アニメーションの時間（0.3秒）
 
-// --- 最初に、他の構造体で使われる型（enum）を定義 ---
+// ゲームシーン
 typedef enum
 {
     SCENE_TITLE,
@@ -21,6 +21,15 @@ typedef enum
     SCENE_NOVEL,
     SCENE_ENDING,
 } GameScene;
+
+// 難易度用
+typedef enum
+{
+    DIFF_DAY,
+    DIFF_EVENING,
+    DIFF_NIGHT,
+    DIFF_IKUU
+} Difficulty;
 
 typedef enum
 {
@@ -74,6 +83,7 @@ typedef struct
     // ゲーム状態
     bool isRunning;
     GameScene currentScene;
+    Difficulty difficulty; // 難易度
     MinigameType currentMinigame;
     int veggiesRequired;
     int veggiesCollected;
