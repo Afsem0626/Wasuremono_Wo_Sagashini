@@ -39,9 +39,7 @@ void DrawGame(GameState *gs)
     SDL_RenderPresent(gs->renderer);
 }
 
-// ==========================================================
 // 以下はこのファイル内だけで使われる静的（static）関数
-// ==========================================================
 
 static void DrawTitleScene(GameState *gs)
 {
@@ -107,7 +105,6 @@ static void DrawVeggieMinigame(GameState *gs)
     DrawHUD(gs);
 }
 
-// ★★★ アニメーション描画に対応した DrawArrowMinigame 関数 ★★★
 static void DrawArrowMinigame(GameState *gs)
 {
     int base_start_x = (1920 - (MAX_ARROWS * 150)) / 2;
@@ -124,7 +121,7 @@ static void DrawArrowMinigame(GameState *gs)
             progress = 1.0f;
     }
 
-    // 画面に表示すべき矢印（まだクリアしていない矢印）を描画
+    // 矢印（矢印）を描画
     for (int i = gs->arrowPlayerProgress; i < MAX_ARROWS; i++)
     {
         SDL_Texture *tex = gs->arrowTextures[gs->arrowSequence[i]];

@@ -17,12 +17,10 @@ int main(int argc, char *argv[])
     // アセットの読み込みも呼び出す
     LoadAssets(&gameState);
 
-    // --- メインループ ---
+    // メインループ
     gameState.isRunning = true;
     while (gameState.isRunning)
     {
-
-        // 各関数に、必要とされる正しい引数を渡す
 
         // 修正前
         // HandleInput(&inputState, &gameState.isRunning);

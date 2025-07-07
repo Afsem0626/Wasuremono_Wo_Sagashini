@@ -6,7 +6,6 @@
 
 const int PLAYER_SPEED = 20;
 
-// --- このファイル内だけで使う「静的関数」の前方宣言 ---
 static void UpdateTitleScene(GameState *gs, const InputState *input);
 static void UpdateGameOverScene(GameState *gs, const InputState *input);
 static void UpdateVeggieMinigame(GameState *gs, const InputState *input);
@@ -18,9 +17,8 @@ static void UpdateEnemies(GameState *gs);
 static void CheckCollisions(GameState *gs);
 static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b);
 
-// ==========================================================
-// 公開関数 (main.c から呼び出される司令塔)
-// ==========================================================
+// main.c で呼び出す関数
+
 void UpdateGame(GameState *gs, const InputState *input)
 {
     switch (gs->currentScene)
@@ -42,8 +40,8 @@ void UpdateGame(GameState *gs, const InputState *input)
     case SCENE_GAME_OVER:
         UpdateGameOverScene(gs, input);
 
-    case SCENE_NOVEL: // ★★★ この行を追加 ★★★
-        // 今はまだ何もしない
+    case SCENE_NOVEL:
+        // 未実装
         break;
     case SCENE_ENDING:
         // UpdateEndingScene(gs, input); // 後で作成するエンディング用の更新関数を呼ぶ
@@ -51,9 +49,7 @@ void UpdateGame(GameState *gs, const InputState *input)
     }
 }
 
-// ==========================================================
-// 以下はこのファイル内だけで使われる静的（static）関数
-// ==========================================================
+// 以下はこのファイル内だけで使われる静的関数
 
 static void UpdateTitleScene(GameState *gs, const InputState *input)
 {
@@ -82,7 +78,7 @@ static void UpdateVeggieMinigame(GameState *gs, const InputState *input)
     {
         printf("全ての野菜を回収！ 扉のロックが解除された！\n");
         gs->door.doorState = DOOR_UNLOCKED;
-        // ここでロック解除の効果音を鳴らすと良い
+        // ここでロック解除の効果音を鳴らす予定
     }
     if (gs->player.hp <= 0)
         gs->currentScene = SCENE_GAME_OVER;
@@ -150,7 +146,7 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
     // 正解だった場合の処理
     if (correct_input)
     {
-        // ★★★ すぐに進捗を進めるのではなく、アニメーションを開始する ★★★
+        // すぐに進捗を進めるのではなく、アニメーションを開始する
         gs->isArrowAnimating = true;
         gs->arrowAnimationTimer = 0.0f; // タイマーをリセット
         // 正解の効果音を鳴らす
@@ -238,10 +234,10 @@ static void CheckCollisions(GameState *gs)
     }
 }
 
-// ★★★ 新しく追加するプレイヤー移動関数 ★★★
+// プレイヤーの移動関数
 static void UpdatePlayer(GameState *gs, const InputState *input)
 {
-    // 1. これまでの移動処理
+    //  これまでの移動処理
     if (input->up_held)
         gs->player.rect.y -= PLAYER_SPEED;
     if (input->down_held)
@@ -251,9 +247,8 @@ static void UpdatePlayer(GameState *gs, const InputState *input)
     if (input->right_held)
         gs->player.rect.x += PLAYER_SPEED;
 
-    // --- ★★★ ここから境界チェック処理を追加 ★★★ ---
-
-    // 2. 画面のサイズを取得
+    // プレイヤーの移動を制限
+    //  画面のサイズを取得
     int screen_w, screen_h;
     // GameState構造体からrendererポインタを渡す
     SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
@@ -270,7 +265,7 @@ static void UpdatePlayer(GameState *gs, const InputState *input)
         gs->player.rect.x = screen_w - gs->player.rect.w;
     }
 
-    // 4. 上下の壁との判定
+    // 上下の壁との判定
     // 上の壁
     if (gs->player.rect.y < 0)
     {
@@ -292,7 +287,7 @@ static void ResetStage(GameState *gs)
 {
     printf("ステージをリセットします。\n");
 
-    // ★★★ ゲーム開始時・リスタート時にクリア状況をリセット ★★★
+    //  ゲーム開始時・リスタート時にクリア状況をリセット
     if (gs->currentScene == SCENE_TITLE)
     { // タイトルから始める時だけリセット
         gs->minigamesCleared = 0;
@@ -300,9 +295,9 @@ static void ResetStage(GameState *gs)
         gs->minigamesRequired = 4;
     }
 
-    // --- プレイヤーの状態をリセット ---
+    // プレイヤーの状態をリセット
     gs->player.hp = 2;
-    // クリアに必要な野菜の数を設定 (今は定数MAX_VEGGIESを使う)
+    // クリアに必要な野菜の数を設定
     gs->veggiesRequired = MAX_VEGGIES;
 
     // 画面サイズを取得して、プレイヤーを初期位置（左側の中央）に配置
@@ -311,7 +306,7 @@ static void ResetStage(GameState *gs)
     gs->player.rect.x = 100;
     gs->player.rect.y = (screen_h - gs->player.rect.h) / 2;
 
-    // --- 野菜の状態をリセット ---
+    // 野菜の状態をリセット
     gs->veggiesCollected = 0;
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
@@ -321,7 +316,7 @@ static void ResetStage(GameState *gs)
         gs->veggies[i].rect.y = 150 + (rand() % 700);
     }
 
-    // ★★★ 扉の状態を「ロックされた」状態で初期化 ★★★
+    // 扉の状態をロック状態で初期化
     gs->door.doorState = DOOR_LOCKED;
     // 扉の初期位置を固定（例：画面右端の中央）
     SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
@@ -330,7 +325,7 @@ static void ResetStage(GameState *gs)
     // 扉を閉めたままに
     gs->door.isActive = false;
 
-    // --- 敵の状態をリセット ---
+    // 敵の状態をリセット
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         gs->enemies[i].isActive = true; // 全ての敵を有効化
@@ -339,9 +334,9 @@ static void ResetStage(GameState *gs)
         gs->enemies[i].rect.y = 100 + (rand() % 800);
     }
 
-    // --- ミニゲーム2（矢印入力）の状態をリセット ---
+    // ミニゲーム2の状態をリセット
     gs->arrowPlayerProgress = 0; // プレイヤーの進捗をリセット
-    // お題となる矢印シーケンスをランダムに再生成
+    // 矢印をランダムに再生成
     for (int i = 0; i < MAX_ARROWS; i++)
     {
         gs->arrowSequence[i] = rand() % 4; // 0〜3の乱数を生成

@@ -19,7 +19,7 @@ typedef enum
     SCENE_MAIN_STAGE,
     SCENE_GAME_OVER,
     SCENE_NOVEL,
-    SCENE_ENDING, // ★★★ 追加 ★★
+    SCENE_ENDING,
 } GameScene;
 
 typedef enum
@@ -42,7 +42,6 @@ typedef enum
     DOOR_UNLOCKED
 } DoorState;
 
-// --- 次に、基本的な構造体を定義 ---
 typedef struct
 {
     bool up_held, down_held, left_held, right_held, a_held, b_held;
@@ -54,8 +53,8 @@ typedef struct
     bool isActive;        // このオブジェクトが有効か
     SDL_Rect rect;        // 位置とサイズ
     SDL_Texture *texture; // 画像
-    int vx, vy;           // 速度
-    DoorState doorState;  // ★扉専用の状態
+    int vx, vy;
+    DoorState doorState; // 扉の状態
 } GameObject;
 
 typedef struct
@@ -65,7 +64,6 @@ typedef struct
     int hp;
 } Player;
 
-// --- 最後に、上記全てを内包するGameState構造体を定義 ---
 typedef struct
 {
     // SDL関連
@@ -89,11 +87,11 @@ typedef struct
     Player player;
     GameObject veggies[MAX_VEGGIES];
     GameObject enemies[MAX_ENEMIES];
-    GameObject door; // 扉もGameObjectとして管理
+    GameObject door;
     int arrowSequence[MAX_ARROWS];
     int arrowPlayerProgress;
 
-    // ★★★ アニメーション用変数を追加 ★★★
+    // アニメーション用変数を追加
     bool isArrowAnimating;     // アニメーション中かどうかのフラグ
     float arrowAnimationTimer; // アニメーションの進行時間タイマー
     int clearedArrowIndex;     // どの矢印が消えるアニメーション中か
@@ -101,7 +99,7 @@ typedef struct
     // アセット
     TTF_Font *font;
     Mix_Chunk *damageSound;
-    SDL_Texture *titleTexture; // ★★★ この行を追加 ★★★
+    SDL_Texture *titleTexture;
     SDL_Texture *arrowTextures[MAX_ARROWS];
     SDL_Texture *doorLockedTexture;
     SDL_Texture *doorUnlockedTexture;

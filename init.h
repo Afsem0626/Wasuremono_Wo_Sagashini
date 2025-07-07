@@ -3,7 +3,6 @@
 
 #include "structs.h"
 
-// 関数プロトタイプ宣言
 bool InitGame(GameState *gs);
 void LoadAssets(GameState *gs);
 void Cleanup(GameState *gs);
