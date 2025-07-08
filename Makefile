@@ -1,10 +1,9 @@
-# 最終的に生成する実行ファイル名
 EXEC = ./step20_test
 
 # 使用するCコンパイラ
 CC = gcc
 
-# コンパイル対象のソースファイル (.c ファイル)
+
 SRCS = main.c init.c input.c draw.c logic.c sound.c
 
 # ソースファイルからオブジェクトファイル (.o ファイル) のリストを自動生成
@@ -15,7 +14,6 @@ OBJS = $(SRCS:.c=.o)
 # -Wall       : 有用な警告をすべて表示する
 CFLAGS = -g -Wall `pkg-config --cflags sdl2 SDL2_image SDL2_ttf SDL2_mixer`
 
-# リンクオプション
 LIBS = `pkg-config --libs sdl2 SDL2_image SDL2_ttf SDL2_mixer` -lm
 
 all: $(EXEC)
@@ -28,7 +26,6 @@ $(EXEC): $(OBJS)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# クリーンルール: 生成されたファイルを削除する
 clean:
 	rm -f $(EXEC) $(OBJS)
 

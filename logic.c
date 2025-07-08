@@ -330,16 +330,26 @@ static void ResetStage(GameState *gs)
 
     switch (gs->difficulty)
     {
-    case DIFF_IKUU:
-        gs->player.hp = 3;
-        gs->veggiesRequired = 5;
-        gs->minigamesRequired = 5;
-        gs->stageTimer = 15.0f;
-        gs->enemies[0].isActive = true;
-        gs->enemies[0].vx = -20; // 速い
-        gs->enemies[1].isActive = true;
-        gs->enemies[1].vx = -12; // 少し速い
+    case DIFF_DAY:
+        gs->player.hp = 5;
+        gs->veggiesRequired = 2;
+        gs->stageTimer = 30.0f;
+        // 敵の設定
+        gs->enemies[0].isActive = true; // 1体だけ出現
+        gs->enemies[0].vx = -5;         // 遅い
+        gs->enemies[1].isActive = false;
         break;
+
+    case DIFF_EVENING:
+        gs->player.hp = 5;
+        gs->veggiesRequired = 3;
+        gs->stageTimer = 25.0f;
+        // 敵の設定
+        gs->enemies[0].isActive = true; // 1体だけ出現
+        gs->enemies[0].vx = -7;         // 普通の速さ
+        gs->enemies[1].isActive = false;
+        break;
+
     case DIFF_NIGHT:
         gs->player.hp = 5;
         gs->veggiesRequired = 4;
@@ -350,23 +360,16 @@ static void ResetStage(GameState *gs)
         gs->enemies[1].isActive = true;
         gs->enemies[1].vx = -8; // 少し速い
         break;
-    case DIFF_EVENING:
-        gs->player.hp = 5;
-        gs->veggiesRequired = 3;
-        gs->stageTimer = 25.0f;
-        // 敵の設定
-        gs->enemies[0].isActive = true; // 1体だけ出現
-        gs->enemies[0].vx = -7;         // 普通の速さ
-        gs->enemies[1].isActive = false;
-        break;
-    default: // DIFFICULTY_DAY (昼)
-        gs->player.hp = 5;
-        gs->veggiesRequired = 2;
-        gs->stageTimer = 30.0f;
-        // 敵の設定
-        gs->enemies[0].isActive = true; // 1体だけ出現
-        gs->enemies[0].vx = -5;         // 遅い
-        gs->enemies[1].isActive = false;
+
+    case DIFF_IKUU:
+        gs->player.hp = 3;
+        gs->veggiesRequired = 5;
+        gs->minigamesRequired = 5;
+        gs->stageTimer = 15.0f;
+        gs->enemies[0].isActive = true;
+        gs->enemies[0].vx = -20; // 速い
+        gs->enemies[1].isActive = true;
+        gs->enemies[1].vx = -12; // 少し速い
         break;
     }
 
