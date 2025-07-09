@@ -18,6 +18,7 @@ typedef enum
     SCENE_TITLE,
     SCENE_DIFFICULTY,
     SCENE_MAIN_STAGE,
+    SCENE_STAGE_CLEAR, // カットイン用
     SCENE_GAME_OVER,
     SCENE_NOVEL,
     SCENE_ENDING,
@@ -91,6 +92,7 @@ typedef struct
     int veggiesRequired;
     int veggiesCollected;
     float stageTimer;
+    float transitionTimer; // ★★★ カットイン表示用タイマーを追加 ★★★
 
     int minigamesRequired; // クリアに必要なミニゲーム数
     int minigamesCleared;  // クリアしたミニゲーム数
@@ -111,6 +113,7 @@ typedef struct
 
     // アセット
     TTF_Font *font;
+    TTF_Font *largeFont; // ★★★ 追加 ★★★
     Mix_Chunk *damageSound;
     SDL_Texture *titleTexture;
     SDL_Texture *arrowTextures[MAX_ARROWS];

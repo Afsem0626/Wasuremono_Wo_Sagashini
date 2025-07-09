@@ -10,6 +10,7 @@ static void UpdateTitleScene(GameState *gs, const InputState *input);
 static void UpdateDifficultyScene(GameState *gs, const InputState *input);
 static void UpdateGameOverScene(GameState *gs, const InputState *input);
 static void UpdateVeggieMinigame(GameState *gs, const InputState *input);
+static void UpdateStageClearScene(GameState *gs);
 static void UpdateArrowMinigame(GameState *gs, const InputState *input);
 static void StartNewRandomMinigame(GameState *gs);
 static void ResetStage(GameState *gs);
@@ -55,6 +56,10 @@ void UpdateGame(GameState *gs, const InputState *input)
         break;
     case SCENE_GAME_OVER:
         UpdateGameOverScene(gs, input);
+        break;
+    case SCENE_STAGE_CLEAR:
+        UpdateStageClearScene(gs);
+        break;
 
     case SCENE_NOVEL:
         // 未実装
@@ -94,6 +99,7 @@ static void UpdateDifficultyScene(GameState *gs, const InputState *input)
         // 選択されているカーソル位置を、実際の難易度として設定
         gs->difficulty = (Difficulty)gs->difficultySelection;
 
+        gs->minigamesCleared = 0;
         // ステージをリセットしてゲームを開始
         StartNewRandomMinigame(gs);
         gs->currentScene = SCENE_MAIN_STAGE;
@@ -121,8 +127,6 @@ static void UpdateVeggieMinigame(GameState *gs, const InputState *input)
         gs->door.doorState = DOOR_UNLOCKED;
         // ここでロック解除の効果音を鳴らす予定
     }
-    if (gs->player.hp <= 0)
-        gs->currentScene = SCENE_GAME_OVER;
 }
 
 static void UpdateArrowMinigame(GameState *gs, const InputState *input)
@@ -143,7 +147,19 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
             if (gs->arrowPlayerProgress >= MAX_ARROWS)
             {
                 printf("ミニゲーム2 クリア！\n");
-                StartNewRandomMinigame(gs);
+                gs->minigamesCleared++;
+
+                if (gs->minigamesCleared >= gs->minigamesRequired)
+                {
+                    gs->currentScene = SCENE_ENDING;
+                }
+                else
+                {
+                    // ★★★ 修正箇所 ★★★
+                    // 次のゲームに直接進むのではなく、クリア画面に遷移
+                    gs->currentScene = SCENE_STAGE_CLEAR;
+                    gs->transitionTimer = 2.0f; // カットインを2秒間表示する
+                }
             }
         }
         return; // アニメーション中は以降の入力処理を行わない
@@ -252,6 +268,20 @@ static void CheckCollisions(GameState *gs)
     {
         printf("扉に入った！ ミニゲーム1 クリア！\n");
         gs->minigamesCleared++; // クリア数を1増やす
+
+        if (gs->minigamesCleared >= gs->minigamesRequired)
+        {
+            gs->currentScene = SCENE_ENDING;
+        }
+        else
+        {
+            // ★★★ 修正箇所 ★★★
+            // 次のゲームに直接進むのではなく、クリア画面に遷移
+            gs->currentScene = SCENE_STAGE_CLEAR;
+            gs->transitionTimer = 2.0f; // カットインを2秒間表示する
+        }
+        if (gs->player.hp <= 0)
+            gs->currentScene = SCENE_GAME_OVER;
         if (gs->minigamesCleared >= gs->minigamesRequired)
         {
             gs->currentScene = SCENE_ENDING; // 目標数に達したらエンディングへ
@@ -332,6 +362,7 @@ static void ResetStage(GameState *gs)
     {
     case DIFF_DAY:
         gs->player.hp = 5;
+        gs->minigamesRequired = 3;
         gs->veggiesRequired = 2;
         gs->stageTimer = 30.0f;
         // 敵の設定
@@ -343,6 +374,7 @@ static void ResetStage(GameState *gs)
     case DIFF_EVENING:
         gs->player.hp = 5;
         gs->veggiesRequired = 3;
+        gs->minigamesRequired = 4;
         gs->stageTimer = 25.0f;
         // 敵の設定
         gs->enemies[0].isActive = true; // 1体だけ出現
@@ -371,15 +403,24 @@ static void ResetStage(GameState *gs)
         gs->enemies[1].isActive = true;
         gs->enemies[1].vx = -12; // 少し速い
         break;
+
+    // テスト用
+    default:
+        /*gs->player.hp = 5;
+        gs->veggiesRequired = 2;
+        gs->minigamesRequired = 4;
+        gs->stageTimer = 30.0f;
+        */
+        break;
     }
 
-    gs->minigamesCleared = 0; // クリア数は常に0にリセット
-    //  ゲーム開始時・リスタート時にクリア状況をリセット
+    // （削除予定）gs->minigamesCleared = 0; // クリア数は常に0にリセット
+    //   ゲーム開始時・リスタート時にクリア状況をリセット
     if (gs->currentScene == SCENE_TITLE)
     { // タイトルから始める時だけリセット
         gs->minigamesCleared = 0;
         // 難易度に応じて変更する（今は仮に4つとする）
-        gs->minigamesRequired = 4;
+        // gs->minigamesRequired = 4;
     }
 
     // プレイヤーの状態をリセット
@@ -427,5 +468,19 @@ static void ResetStage(GameState *gs)
     for (int i = 0; i < MAX_ARROWS; i++)
     {
         gs->arrowSequence[i] = rand() % 4; // 0〜3の乱数を生成
+    }
+}
+
+// カットイン用
+static void UpdateStageClearScene(GameState *gs)
+{
+    // transitionTimerを少しずつ減らす
+    gs->transitionTimer -= (1.0f / 60.0f);
+
+    // タイマーが0になったら
+    if (gs->transitionTimer <= 0)
+    {
+        StartNewRandomMinigame(gs);          // 次のミニゲームを開始
+        gs->currentScene = SCENE_MAIN_STAGE; // 場面をメインステージに戻す
     }
 }

@@ -5,6 +5,7 @@
 static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y);
 static void DrawTitleScene(GameState *gs);
 static void DrawMainStage(GameState *gs);
+static void DrawStageClearScene(GameState *gs);
 static void DrawGameOverScene(GameState *gs);
 static void DrawEndingScene(GameState *gs);
 static void DrawVeggieMinigame(GameState *gs);
@@ -29,6 +30,9 @@ void DrawGame(GameState *gs)
         break;
     case SCENE_MAIN_STAGE:
         DrawMainStage(gs);
+        break;
+    case SCENE_STAGE_CLEAR: // ★★★ 追加 ★★★
+        DrawStageClearScene(gs);
         break;
     case SCENE_GAME_OVER:
         DrawGameOverScene(gs);
@@ -110,6 +114,21 @@ static void DrawMainStage(GameState *gs)
     {
         DrawArrowMinigame(gs);
     }
+}
+
+// カットイン用
+static void DrawStageClearScene(GameState *gs)
+{
+    // まず、背景としてメインステージの画面をそのまま描画する
+    DrawMainStage(gs);
+
+    // その上に、半透明の黒いフィルターをかける
+    SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 128); // 128は透明度
+    SDL_RenderFillRect(gs->renderer, NULL);             // 画面全体を覆う
+
+    // 「STAGE CLEAR」の文字を中央に大きく描画
+    DrawText(gs->renderer, gs->largeFont, "STAGE CLEAR!", 600, 450);
 }
 
 static void DrawEndingScene(GameState *gs)

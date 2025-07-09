@@ -28,7 +28,15 @@ void LoadAssets(GameState *gs)
     gs->font = TTF_OpenFont("ZenOldMincho-Bold.ttf", 28);
     if (!gs->font)
     { /* エラー処理 */
+        return;
     }
+    gs->largeFont = TTF_OpenFont("ZenOldMincho-Bold.ttf", 64); // 例：大きめのフォントサイズ
+    if (!gs->largeFont)
+    {
+        fprintf(stderr, "大きめのフォントのロードに失敗: %s\n", TTF_GetError());
+        return;
+    }
+
     // タイトル画面
     gs->titleTexture = LoadTexture("assets/title_screen.png", gs->renderer);
 
@@ -155,6 +163,7 @@ void Cleanup(GameState *gs)
 
     // フォントとサウンドの解放
     TTF_CloseFont(gs->font);
+    TTF_CloseFont(gs->largeFont);
     Mix_FreeChunk(gs->damageSound);
 
     // SDLサブシステムの終了
