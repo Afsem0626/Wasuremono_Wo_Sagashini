@@ -1,4 +1,4 @@
-EXEC = ./step22_test
+EXEC = ./step24_test
 
 # 使用するCコンパイラ
 CC = gcc

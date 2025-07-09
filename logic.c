@@ -120,7 +120,8 @@ static void UpdateVeggieMinigame(GameState *gs, const InputState *input)
     UpdatePlayer(gs, input);
     UpdateEnemies(gs);
     CheckCollisions(gs);
-
+    if (gs->player.hp <= 0)
+        gs->currentScene = SCENE_GAME_OVER;
     if (gs->veggiesCollected >= gs->veggiesRequired && gs->door.doorState == DOOR_LOCKED)
     {
         printf("全ての野菜を回収！ 扉のロックが解除された！\n");
@@ -255,6 +256,7 @@ static void UpdateEnemies(GameState *gs)
 
 static void CheckCollisions(GameState *gs)
 {
+    // 野菜との当たり判定
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
         if (gs->veggies[i].isActive && DetectCollision(&gs->player.rect, &gs->veggies[i].rect))
@@ -264,35 +266,7 @@ static void CheckCollisions(GameState *gs)
         }
     }
 
-    if (gs->door.doorState == DOOR_UNLOCKED && DetectCollision(&gs->player.rect, &gs->door.rect))
-    {
-        printf("扉に入った！ ミニゲーム1 クリア！\n");
-        gs->minigamesCleared++; // クリア数を1増やす
-
-        if (gs->minigamesCleared >= gs->minigamesRequired)
-        {
-            gs->currentScene = SCENE_ENDING;
-        }
-        else
-        {
-            // ★★★ 修正箇所 ★★★
-            // 次のゲームに直接進むのではなく、クリア画面に遷移
-            gs->currentScene = SCENE_STAGE_CLEAR;
-            gs->transitionTimer = 2.0f; // カットインを2秒間表示する
-        }
-        if (gs->player.hp <= 0)
-            gs->currentScene = SCENE_GAME_OVER;
-        if (gs->minigamesCleared >= gs->minigamesRequired)
-        {
-            gs->currentScene = SCENE_ENDING; // 目標数に達したらエンディングへ
-            printf("ゲームクリア！\n");
-        }
-        else
-        {
-            StartNewRandomMinigame(gs); // まだなら次のミニゲームへ
-        }
-    }
-
+    // 敵との当たり判定
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         if (gs->enemies[i].isActive && DetectCollision(&gs->player.rect, &gs->enemies[i].rect))
@@ -301,6 +275,27 @@ static void CheckCollisions(GameState *gs)
             gs->enemies[i].isActive = false;
             PlaySound(gs->damageSound);
             printf("ダメージ！ 残りHP: %d\n", gs->player.hp);
+        }
+    }
+
+    // ★★★ 以下のように修正 ★★★
+    // 扉との当たり判定
+    if (gs->player.hp > 0 && gs->door.doorState == DOOR_UNLOCKED && DetectCollision(&gs->player.rect, &gs->door.rect))
+    {
+        printf("扉に入った！ ミニゲーム1 クリア！\n");
+        gs->minigamesCleared++; // クリア数を増やす
+
+        // 目標数に達したかチェック
+        if (gs->minigamesCleared >= gs->minigamesRequired)
+        {
+            gs->currentScene = SCENE_ENDING; // 完全にゲームクリアならエンディングへ
+            printf("ゲームクリア！\n");
+        }
+        else
+        {
+            // まだ続くなら、カットイン画面に遷移するだけ
+            gs->currentScene = SCENE_STAGE_CLEAR;
+            gs->transitionTimer = 2.0f; // カットインを2秒間表示する
         }
     }
 }
@@ -398,10 +393,18 @@ static void ResetStage(GameState *gs)
         gs->veggiesRequired = 5;
         gs->minigamesRequired = 5;
         gs->stageTimer = 15.0f;
-        gs->enemies[0].isActive = true;
-        gs->enemies[0].vx = -20; // 速い
-        gs->enemies[1].isActive = true;
-        gs->enemies[1].vx = -12; // 少し速い
+        for (int i; i < MAX_ENEMIES; i++)
+        {
+            if (i < 5)
+            { // 最初の5体だけを有効にする
+                gs->enemies[i].isActive = true;
+                gs->enemies[i].vx = -12 - (rand() % 8); // 速さもランダムに
+            }
+            else
+            {
+                gs->enemies[i].isActive = false; // 残りは非表示
+            }
+        }
         break;
 
     // テスト用
@@ -442,6 +445,13 @@ static void ResetStage(GameState *gs)
         // 野菜の初期位置を再設定
         gs->veggies[i].rect.x = 600 + (rand() % 800);
         gs->veggies[i].rect.y = 150 + (rand() % 700);
+    }
+
+    // ★★★ 敵の初期位置だけを設定する ★★★
+    for (int i = 0; i < MAX_ENEMIES; i++)
+    {
+        gs->enemies[i].rect.x = screen_w + (i * 200) + (rand() % 300);
+        gs->enemies[i].rect.y = 100 + (rand() % 800);
     }
 
     // 扉の状態をロック状態で初期化

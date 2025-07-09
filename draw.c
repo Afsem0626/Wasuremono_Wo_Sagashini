@@ -229,8 +229,15 @@ static void DrawArrowMinigame(GameState *gs)
 static void DrawHUD(GameState *gs)
 {
     char hudText[128];
-    sprintf(hudText, "HP: %d | 野菜: %d / %d | 時間: %.0f",
-            gs->player.hp, gs->veggiesCollected, gs->veggiesRequired, gs->stageTimer);
+
+    sprintf(hudText, "ステージ: %d / %d | HP: %d | 野菜: %d / %d | 時間: %.0f",
+            gs->minigamesCleared + 1, // 現在のステージ数
+            gs->minigamesRequired,    // 目標ステージ数
+            gs->player.hp,
+            gs->veggiesCollected,
+            gs->veggiesRequired,
+            gs->stageTimer);
+
     DrawText(gs->renderer, gs->font, hudText, 20, 20);
 }
 

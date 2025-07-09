@@ -53,8 +53,18 @@ void LoadAssets(GameState *gs)
     gs->doorUnlockedTexture = LoadTexture("assets/door_unlocked.png", gs->renderer);
 
     // 敵画像
+    /*
     gs->enemies[0].texture = LoadTexture("enemies/enemy.png", gs->renderer);
     gs->enemies[1].texture = gs->enemies[0].texture; // 2体目は同じ画像を使う
+    */
+    // まず、敵のテクスチャを一度だけ読み込む
+    SDL_Texture *enemyTexture = LoadTexture("enemies/enemy.png", gs->renderer);
+
+    // forループを使って、全ての敵に同じテクスチャを設定する
+    for (int i = 0; i < MAX_ENEMIES; i++)
+    {
+        gs->enemies[i].texture = enemyTexture;
+    }
 
     // 効果音
     gs->damageSound = Mix_LoadWAV("sound/damage.wav");
