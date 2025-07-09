@@ -6,6 +6,7 @@ static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, i
 static void DrawTitleScene(GameState *gs);
 static void DrawMainStage(GameState *gs);
 static void DrawGameOverScene(GameState *gs);
+static void DrawEndingScene(GameState *gs);
 static void DrawVeggieMinigame(GameState *gs);
 static void DrawArrowMinigame(GameState *gs);
 static void DrawHUD(GameState *gs);
@@ -36,7 +37,7 @@ void DrawGame(GameState *gs)
         // 未実装
         break;
     case SCENE_ENDING:
-        // 未実装
+        DrawEndingScene(gs);
         break;
     }
     SDL_RenderPresent(gs->renderer);
@@ -109,6 +110,17 @@ static void DrawMainStage(GameState *gs)
     {
         DrawArrowMinigame(gs);
     }
+}
+
+static void DrawEndingScene(GameState *gs)
+{
+    // 背景を明るいクリーム色でクリア
+    SDL_SetRenderDrawColor(gs->renderer, 250, 250, 210, 255);
+    SDL_RenderClear(gs->renderer);
+
+    DrawText(gs->renderer, gs->font, "GAME CLEAR", 760, 400);
+    DrawText(gs->renderer, gs->font, "Congratulations!", 780, 500);
+    DrawText(gs->renderer, gs->font, "パネルをふんでタイトルへ", 700, 700);
 }
 
 static void DrawVeggieMinigame(GameState *gs)
