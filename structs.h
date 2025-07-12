@@ -9,7 +9,8 @@
 
 #define MAX_VEGGIES 3
 #define MAX_ENEMIES 10
-#define MAX_ARROWS 4
+#define MAX_ARROWS 18 // ← ★★★ 名稱変更：配列の最大サイズを示す
+#define VISIBLE_ARROWS 4
 #define ARROW_ANIMATION_DURATION 0.3f // 矢印アニメーションの時間（0.3秒）
 
 // ゲームシーン
@@ -103,7 +104,8 @@ typedef struct
     GameObject veggies[MAX_VEGGIES];
     GameObject enemies[MAX_ENEMIES];
     GameObject door;
-    int arrowSequence[MAX_ARROWS];
+    int arrowSequence[MAX_ARROWS]; // 配列のサイズは最大値で確保
+    int arrowCount;                // ★★★ 追加：このステージで使う矢印の数 ★★★
     int arrowPlayerProgress;
 
     // アニメーション用変数を追加

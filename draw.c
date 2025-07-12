@@ -10,6 +10,7 @@ static void DrawGameOverScene(GameState *gs);
 static void DrawEndingScene(GameState *gs);
 static void DrawVeggieMinigame(GameState *gs);
 static void DrawArrowMinigame(GameState *gs);
+static const int outline_thickness = 10; // 四角形の線の太さ
 static void DrawHUD(GameState *gs);
 
 // 公開関数 (main.c から呼び出される関数)
@@ -31,7 +32,7 @@ void DrawGame(GameState *gs)
     case SCENE_MAIN_STAGE:
         DrawMainStage(gs);
         break;
-    case SCENE_STAGE_CLEAR: // ★★★ 追加 ★★★
+    case SCENE_STAGE_CLEAR: // カットイン用
         DrawStageClearScene(gs);
         break;
     case SCENE_GAME_OVER:
@@ -41,7 +42,8 @@ void DrawGame(GameState *gs)
         // 未実装
         break;
     case SCENE_ENDING:
-        DrawEndingScene(gs);
+        // DrawEndingScene(gs);
+        // 未実装
         break;
     }
     SDL_RenderPresent(gs->renderer);
@@ -176,12 +178,14 @@ static void DrawVeggieMinigame(GameState *gs)
 
 static void DrawArrowMinigame(GameState *gs)
 {
-    int base_start_x = (1920 - (MAX_ARROWS * 150)) / 2;
-    int y = 500;
-    int size = 128;
-    int spacing = 150;
+    // --- サイズと間隔の設定 ---
+    int size = 256;     // 矢印のサイズ
+    int spacing = 300;  // 矢印同士の間隔
+    int y = 400;        // 矢印のY座標
+    int thickness = 10; // 線の太さ
+    int first_arrow_x = 400;
 
-    // アニメーションの進行度 (0.0から1.0) を計算
+    // --- アニメーションの進行度を計算 ---
     float progress = 0.0f;
     if (gs->isArrowAnimating)
     {
@@ -190,24 +194,31 @@ static void DrawArrowMinigame(GameState *gs)
             progress = 1.0f;
     }
 
-    // 矢印（矢印）を描画
-    for (int i = gs->arrowPlayerProgress; i < MAX_ARROWS; i++)
+    // --- 画面に表示すべき矢印を描画 ---
+    for (int i = 0; i < gs->arrowCount - gs->arrowPlayerProgress; i++)
     {
-        SDL_Texture *tex = gs->arrowTextures[gs->arrowSequence[i]];
+        // 現在のお題のインデックスを計算
+        int sequence_index = gs->arrowPlayerProgress + i;
 
-        // テクスチャの修飾をリセット
+        // 画面外に出る矢印は描画しない
+        int current_x = first_arrow_x + i * spacing;
+        if (current_x > 1920)
+        { // 1920は画面幅
+            break;
+        }
+
+        SDL_Texture *tex = gs->arrowTextures[(i < MAX_ARROWS) ? gs->arrowSequence[(gs->arrowPlayerProgress + i) % MAX_ARROWS] : 0];
+
         SDL_SetTextureColorMod(tex, 255, 255, 255);
         SDL_SetTextureAlphaMod(tex, 255);
 
-        // 基本の位置を計算
-        int original_x = base_start_x + (i - gs->arrowPlayerProgress) * spacing;
-        SDL_Rect destRect = {original_x, y, size, size};
+        SDL_Rect destRect = {current_x, y, size, size};
 
-        // もしアニメーション中なら、位置や透明度を上書きする
+        // アニメーション中の描画処理
         if (gs->isArrowAnimating)
         {
-            // 1. 今まさに消えつつある矢印 (iが進捗と同じ=最初の矢印)
-            if (i == gs->arrowPlayerProgress)
+            // 1. 今まさに消えつつある矢印 (i=0、つまり先頭の矢印)
+            if (i == 0)
             {
                 // だんだん透明にする (アルファ値を変更)
                 SDL_SetTextureAlphaMod(tex, 255 * (1.0f - progress));
@@ -221,8 +232,25 @@ static void DrawArrowMinigame(GameState *gs)
         SDL_RenderCopy(gs->renderer, tex, NULL, &destRect);
     }
 
-    // プレイヤーとHUDも描画
-    SDL_RenderCopy(gs->renderer, gs->player.texture, NULL, &gs->player.rect);
+    // --- ターゲットを示す太い四角形を描画 ---
+
+    // 描画色を不透明度0の白に設定
+    SDL_SetRenderDrawColor(gs->renderer, 255, 255, 255, 255);
+
+    // 4つの塗りつぶされた四角形で「枠」を描く
+    SDL_Rect top_bar = {first_arrow_x, y, size, thickness};
+    SDL_RenderFillRect(gs->renderer, &top_bar);
+
+    SDL_Rect bottom_bar = {first_arrow_x, y + size - thickness, size, thickness};
+    SDL_RenderFillRect(gs->renderer, &bottom_bar);
+
+    SDL_Rect left_bar = {first_arrow_x, y, thickness, size};
+    SDL_RenderFillRect(gs->renderer, &left_bar);
+
+    SDL_Rect right_bar = {first_arrow_x + size - thickness, y, thickness, size};
+    SDL_RenderFillRect(gs->renderer, &right_bar);
+
+    // --- ここまで ---
     DrawHUD(gs);
 }
 

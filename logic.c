@@ -65,7 +65,7 @@ void UpdateGame(GameState *gs, const InputState *input)
         // 未実装
         break;
     case SCENE_ENDING:
-        // UpdateEndingScene(gs, input); // 後で作成するエンディング用の更新関数を呼ぶ
+        // 未実装
         break;
     }
 }
@@ -145,7 +145,7 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
             gs->arrowPlayerProgress++;    // プレイヤーの進捗をここで初めて進める
 
             // これでミニゲームクリアか判定
-            if (gs->arrowPlayerProgress >= MAX_ARROWS)
+            if (gs->arrowPlayerProgress >= gs->arrowCount)
             {
                 printf("ミニゲーム2 クリア！\n");
                 gs->minigamesCleared++;
@@ -156,8 +156,7 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
                 }
                 else
                 {
-                    // ★★★ 修正箇所 ★★★
-                    // 次のゲームに直接進むのではなく、クリア画面に遷移
+                    // 次のゲームに直接進むのではなく、クリア画面に移行
                     gs->currentScene = SCENE_STAGE_CLEAR;
                     gs->transitionTimer = 2.0f; // カットインを2秒間表示する
                 }
@@ -277,8 +276,6 @@ static void CheckCollisions(GameState *gs)
             printf("ダメージ！ 残りHP: %d\n", gs->player.hp);
         }
     }
-
-    // ★★★ 以下のように修正 ★★★
     // 扉との当たり判定
     if (gs->player.hp > 0 && gs->door.doorState == DOOR_UNLOCKED && DetectCollision(&gs->player.rect, &gs->door.rect))
     {
@@ -364,6 +361,8 @@ static void ResetStage(GameState *gs)
         gs->enemies[0].isActive = true; // 1体だけ出現
         gs->enemies[0].vx = -5;         // 遅い
         gs->enemies[1].isActive = false;
+
+        gs->arrowCount = 4;
         break;
 
     case DIFF_EVENING:
@@ -375,6 +374,8 @@ static void ResetStage(GameState *gs)
         gs->enemies[0].isActive = true; // 1体だけ出現
         gs->enemies[0].vx = -7;         // 普通の速さ
         gs->enemies[1].isActive = false;
+
+        gs->arrowCount = 5;
         break;
 
     case DIFF_NIGHT:
@@ -386,6 +387,8 @@ static void ResetStage(GameState *gs)
         gs->enemies[0].vx = -10; // 速い
         gs->enemies[1].isActive = true;
         gs->enemies[1].vx = -8; // 少し速い
+
+        gs->arrowCount = 6;
         break;
 
     case DIFF_IKUU:
@@ -405,6 +408,8 @@ static void ResetStage(GameState *gs)
                 gs->enemies[i].isActive = false; // 残りは非表示
             }
         }
+
+        gs->arrowCount = 10;
         break;
 
     // テスト用
@@ -480,8 +485,8 @@ static void ResetStage(GameState *gs)
         gs->arrowSequence[i] = rand() % 4; // 0〜3の乱数を生成
     }
 }
-
-// カットイン用
+// 難易度によって敵の出現数を変動するようにしてるはずが、なぜかたくさん出てきてしまう
+//  カットイン用
 static void UpdateStageClearScene(GameState *gs)
 {
     // transitionTimerを少しずつ減らす
