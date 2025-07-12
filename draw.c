@@ -10,7 +10,6 @@ static void DrawGameOverScene(GameState *gs);
 static void DrawEndingScene(GameState *gs);
 static void DrawVeggieMinigame(GameState *gs);
 static void DrawArrowMinigame(GameState *gs);
-static const int outline_thickness = 10; // 四角形の線の太さ
 static void DrawHUD(GameState *gs);
 
 // 公開関数 (main.c から呼び出される関数)
