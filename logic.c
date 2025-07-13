@@ -8,6 +8,7 @@ const int PLAYER_SPEED = 20;
 
 static void UpdateTitleScene(GameState *gs, const InputState *input);
 static void UpdateDifficultyScene(GameState *gs, const InputState *input);
+static void UpdateNovelScene(GameState *gs, const InputState *input);
 static void UpdateGameOverScene(GameState *gs, const InputState *input);
 static void UpdateVeggieMinigame(GameState *gs, const InputState *input);
 static void UpdateStageClearScene(GameState *gs);
@@ -62,7 +63,7 @@ void UpdateGame(GameState *gs, const InputState *input)
         break;
 
     case SCENE_NOVEL:
-        // 未実装
+        UpdateNovelScene(gs, input);
         break;
     case SCENE_ENDING:
         // 未実装
@@ -77,7 +78,9 @@ static void UpdateTitleScene(GameState *gs, const InputState *input)
     if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed)
     {
         // StartNewRandomMinigame(gs);
-        gs->currentScene = SCENE_DIFFICULTY;
+        // gs->currentScene = SCENE_DIFFICULTY;
+        gs->novel.currentLine = 0; // 会話を最初からにする
+        gs->currentScene = SCENE_NOVEL;
     }
 }
 
@@ -104,6 +107,23 @@ static void UpdateDifficultyScene(GameState *gs, const InputState *input)
         StartNewRandomMinigame(gs);
         gs->currentScene = SCENE_MAIN_STAGE;
         printf("難易度 %d でゲーム開始！\n", gs->difficulty);
+    }
+}
+
+// ★★★ 新規追加 ★★★：会話シーンのロジック
+static void UpdateNovelScene(GameState *gs, const InputState *input)
+{
+    // 何かパネルが「押された瞬間」なら
+    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed)
+    {
+        gs->novel.currentLine++; // 次の行へ
+
+        // もし、スクリプトの最後まで進んだら
+        if (gs->novel.currentLine >= gs->novel.lineCount)
+        {
+            // 次のシーン（難易度選択）へ移行
+            gs->currentScene = SCENE_DIFFICULTY;
+        }
     }
 }
 

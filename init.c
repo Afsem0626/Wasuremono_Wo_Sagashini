@@ -3,6 +3,8 @@
 #include <stdlib.h> // ★★★ srand(), rand() のために追加 ★★★
 #include <time.h>   // ★★★ time() のために追加 ★★★
 
+static void LoadScript(const char *path, NovelState *novel);
+
 // テクスチャ読み込みの補助関数
 SDL_Texture *LoadTexture(const char *path, SDL_Renderer *renderer)
 {
@@ -40,8 +42,15 @@ void LoadAssets(GameState *gs)
     // タイトル画面
     gs->titleTexture = LoadTexture("assets/title_screen.png", gs->renderer);
 
-    // プレイヤー画像
+    // プレイヤー画像（現在は青い箱）
     gs->player.texture = LoadTexture("player.png", gs->renderer);
+
+    // ノベル用
+    gs->novel.characterTexture = LoadTexture("assets/yuri_stand.png", gs->renderer);
+    gs->novel.windowTexture = LoadTexture("assets/message_window.png", gs->renderer);
+
+    // テキストファイルを読み込む (この補助関数は後で作成)
+    LoadScript("assets/opening.txt", &gs->novel);
 
     // 野菜画像
     gs->veggies[0].texture = LoadTexture("vegetables/carrot.png", gs->renderer);
@@ -77,6 +86,51 @@ void LoadAssets(GameState *gs)
     gs->arrowTextures[ARROW_DOWN] = LoadTexture("assets/arrow_down.png", gs->renderer);
     gs->arrowTextures[ARROW_LEFT] = LoadTexture("assets/arrow_left.png", gs->renderer);
     gs->arrowTextures[ARROW_RIGHT] = LoadTexture("assets/arrow_right.png", gs->renderer);
+}
+
+static void LoadScript(const char *path, NovelState *novel)
+{
+    FILE *file = fopen(path, "r");
+    if (!file)
+    {
+        fprintf(stderr, "スクリプトファイルを開けませんでした: %s\n", path);
+        return;
+    }
+
+    char buffer[256];
+    int count = 0;
+    // まず行数を数える
+    while (fgets(buffer, sizeof(buffer), file))
+    {
+        count++;
+    }
+
+    novel->lineCount = count;
+    novel->lines = malloc(sizeof(char *) * count);
+    if (novel->lines == NULL)
+    { /* エラー処理 */
+        fclose(file);
+        return;
+    }
+
+    // ファイルポインタを先頭に戻す
+    fseek(file, 0, SEEK_SET);
+
+    // 各行を読み込んでメモリに格納
+    int i = 0;
+    while (fgets(buffer, sizeof(buffer), file))
+    {
+        // 改行文字を削除
+        buffer[strcspn(buffer, "\n")] = 0;
+        novel->lines[i] = strdup(buffer);
+        if (novel->lines[i] == NULL)
+        { /* エラー処理 */
+            break;
+        }
+        i++;
+    }
+
+    fclose(file);
 }
 
 bool InitGame(GameState *gs)
@@ -170,6 +224,17 @@ void Cleanup(GameState *gs)
     // 敵のテクスチャは共有しているので一度だけ解放
     if (gs->enemies[0].texture)
         SDL_DestroyTexture(gs->enemies[0].texture);
+
+    // 会話シーン用テクスチャの解放
+    SDL_DestroyTexture(gs->novel.characterTexture);
+    SDL_DestroyTexture(gs->novel.windowTexture);
+
+    // スクリプト用メモリの解放
+    for (int i = 0; i < gs->novel.lineCount; i++)
+    {
+        free(gs->novel.lines[i]); // strdupで確保したメモリを解放
+    }
+    free(gs->novel.lines); // 行ポインタ配列自体を解放
 
     // フォントとサウンドの解放
     TTF_CloseFont(gs->font);

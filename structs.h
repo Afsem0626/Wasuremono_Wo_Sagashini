@@ -9,7 +9,7 @@
 
 #define MAX_VEGGIES 3
 #define MAX_ENEMIES 10
-#define MAX_ARROWS 18 // ← ★★★ 名稱変更：配列の最大サイズを示す
+#define MAX_ARROWS 18
 #define VISIBLE_ARROWS 4
 #define ARROW_ANIMATION_DURATION 0.3f // 矢印アニメーションの時間（0.3秒）
 
@@ -34,6 +34,15 @@ typedef enum
     DIFF_IKUU,
     DIFFICULTY_COUNT,
 } Difficulty;
+
+typedef struct
+{
+    SDL_Texture *characterTexture; // 立ち絵のテクスチャ
+    SDL_Texture *windowTexture;    // メッセージウィンドウのテクスチャ
+    char **lines;                  // セリフの文字列配列
+    int lineCount;                 // セリフの総行数
+    int currentLine;               // 現在表示している行番号
+} NovelState;
 
 typedef enum
 {
@@ -97,6 +106,9 @@ typedef struct
 
     int minigamesRequired; // クリアに必要なミニゲーム数
     int minigamesCleared;  // クリアしたミニゲーム数
+
+    // ノベル用変数
+    NovelState novel;
 
     // オブジェクト
     InputState input;

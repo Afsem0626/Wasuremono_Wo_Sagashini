@@ -2,9 +2,10 @@
 #include <stdio.h>
 
 // --- このファイル内だけで使う「静的関数」の前方宣言 ---
-static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y);
+static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color);
 static void DrawTitleScene(GameState *gs);
 static void DrawMainStage(GameState *gs);
+static void DrawNovelScene(GameState *gs);
 static void DrawStageClearScene(GameState *gs);
 static void DrawGameOverScene(GameState *gs);
 static void DrawEndingScene(GameState *gs);
@@ -38,7 +39,7 @@ void DrawGame(GameState *gs)
         DrawGameOverScene(gs);
         break;
     case SCENE_NOVEL:
-        // 未実装
+        DrawNovelScene(gs);
         break;
     case SCENE_ENDING:
         // DrawEndingScene(gs);
@@ -50,6 +51,9 @@ void DrawGame(GameState *gs)
 
 void DrawDifficultyScene(GameState *gs)
 {
+    SDL_Color white = {255, 255, 255, 255};
+    SDL_Color yellow = {255, 255, 0, 255};
+
     // 難易度の選択肢を文字列の配列として定義
     const char *difficulty_names[] = {
         "昼 (Easy)",
@@ -62,7 +66,7 @@ void DrawDifficultyScene(GameState *gs)
     SDL_RenderClear(gs->renderer);
 
     // ヘッダーテキストを描画
-    DrawText(gs->renderer, gs->font, "難易度を選んでください", 650, 200);
+    DrawText(gs->renderer, gs->font, "難易度を選んでください", 650, 200, white);
 
     // 各選択肢をループで描画
     for (int i = 0; i < DIFFICULTY_COUNT; i++)
@@ -72,13 +76,14 @@ void DrawDifficultyScene(GameState *gs)
         {
             // DrawText関数を一時的に改造するか、色を引数で渡せるようにするとより良い
             // ここでは簡易的に、選択されている項目を示すカーソルを描画する
-            DrawText(gs->renderer, gs->font, "→", 700, 400 + i * 100);
-            DrawText(gs->renderer, gs->font, difficulty_names[i], 750, 400 + i * 100);
+            DrawText(gs->renderer, gs->font, "→", 700, 400 + i * 100, yellow);
+            DrawText(gs->renderer, gs->font, difficulty_names[i], 750, 400 + i * 100, white);
         }
         else
         {
             // 選択されていない項目は通常の色で描画
-            DrawText(gs->renderer, gs->font, difficulty_names[i], 750, 400 + i * 100);
+            // DrawTextの第5引数を後で修正する
+            DrawText(gs->renderer, gs->font, difficulty_names[i], 750, 400 + i * 100, white);
         }
     }
 }
@@ -87,13 +92,14 @@ void DrawDifficultyScene(GameState *gs)
 
 static void DrawTitleScene(GameState *gs)
 {
+    SDL_Color white = {255, 255, 255, 255};
     if (gs->titleTexture != NULL)
     {
         SDL_RenderCopy(gs->renderer, gs->titleTexture, NULL, NULL);
     }
     else
     {
-        DrawText(gs->renderer, gs->font, "タイトル画像を読み込めませんでした", 500, 500);
+        DrawText(gs->renderer, gs->font, "タイトル画像を読み込めませんでした", 500, 500, white);
     }
 }
 
@@ -101,7 +107,8 @@ static void DrawGameOverScene(GameState *gs)
 {
     SDL_SetRenderDrawColor(gs->renderer, 80, 0, 0, 255); // 暗い赤色
     SDL_RenderClear(gs->renderer);
-    DrawText(gs->renderer, gs->font, "GAME OVER", 760, 490);
+    SDL_Color white = {255, 255, 255, 255};
+    DrawText(gs->renderer, gs->font, "GAME OVER", 760, 490, white);
 }
 
 static void DrawMainStage(GameState *gs)
@@ -117,6 +124,30 @@ static void DrawMainStage(GameState *gs)
     }
 }
 
+// draw.c に新しい静的関数を追加
+
+static void DrawNovelScene(GameState *gs)
+{
+    // 1. 背景を描画 (仮に黒でクリア)
+    SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(gs->renderer);
+
+    // 2. キャラクターの立ち絵を描画 (例: 右側に配置)
+    SDL_Rect charRect = {1200, 100, 600, 900}; // 位置とサイズは要調整
+    SDL_RenderCopy(gs->renderer, gs->novel.characterTexture, NULL, &charRect);
+
+    // 3. メッセージボックスを描画 (画面下部に配置)
+    SDL_Rect msgBoxRect = {100, 780, 1720, 250}; // 位置とサイズは要調整
+    SDL_RenderCopy(gs->renderer, gs->novel.windowTexture, NULL, &msgBoxRect);
+
+    // 4. 現在の行のテキストを描画
+    if (gs->novel.currentLine < gs->novel.lineCount)
+    {
+        SDL_Color white = {255, 255, 255, 255};
+        DrawText(gs->renderer, gs->font, gs->novel.lines[gs->novel.currentLine], 150, 830, white);
+    }
+}
+
 // カットイン用
 static void DrawStageClearScene(GameState *gs)
 {
@@ -129,7 +160,8 @@ static void DrawStageClearScene(GameState *gs)
     SDL_RenderFillRect(gs->renderer, NULL);             // 画面全体を覆う
 
     // 「STAGE CLEAR」の文字を中央に大きく描画
-    DrawText(gs->renderer, gs->largeFont, "STAGE CLEAR!", 600, 450);
+    SDL_Color white = {255, 255, 255, 255};
+    DrawText(gs->renderer, gs->largeFont, "STAGE CLEAR!", 600, 450, white);
 }
 
 static void DrawEndingScene(GameState *gs)
@@ -138,9 +170,10 @@ static void DrawEndingScene(GameState *gs)
     SDL_SetRenderDrawColor(gs->renderer, 250, 250, 210, 255);
     SDL_RenderClear(gs->renderer);
 
-    DrawText(gs->renderer, gs->font, "GAME CLEAR", 760, 400);
-    DrawText(gs->renderer, gs->font, "Congratulations!", 780, 500);
-    DrawText(gs->renderer, gs->font, "パネルをふんでタイトルへ", 700, 700);
+    SDL_Color white = {255, 255, 255, 255};
+    DrawText(gs->renderer, gs->font, "GAME CLEAR", 760, 400, white);
+    DrawText(gs->renderer, gs->font, "Congratulations!", 780, 500, white);
+    DrawText(gs->renderer, gs->font, "パネルをふんでタイトルへ", 700, 700, white);
 }
 
 static void DrawVeggieMinigame(GameState *gs)
@@ -265,12 +298,13 @@ static void DrawHUD(GameState *gs)
             gs->veggiesRequired,
             gs->stageTimer);
 
-    DrawText(gs->renderer, gs->font, hudText, 20, 20);
+    // ★★★ 色の引数を追加 ★★★
+    SDL_Color white = {255, 255, 255, 255};
+    DrawText(gs->renderer, gs->font, hudText, 20, 20, white);
 }
 
-static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y)
+static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color)
 {
-    SDL_Color color = {255, 255, 255, 255};
     SDL_Surface *surface = TTF_RenderUTF8_Solid(font, text, color);
     if (!surface)
         return;
