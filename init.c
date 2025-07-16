@@ -46,11 +46,15 @@ void LoadAssets(GameState *gs)
     gs->player.texture = LoadTexture("player.png", gs->renderer);
 
     // ノベル用
-    gs->novel.characterTexture = LoadTexture("assets/yuri_stand.png", gs->renderer);
-    gs->novel.windowTexture = LoadTexture("assets/message_window.png", gs->renderer);
+    gs->openingNovel.characterTexture = LoadTexture("assets/yuri_stand.png", gs->renderer);
+    gs->endingCharTexture = LoadTexture("assets->yuri_ending.png", gs->renderer);
+    gs->iconTexture = LoadTexture("assets/yuri_icon.png", gs->renderer);
+
+    gs->openingNovel.windowTexture = LoadTexture("assets/message_window.png", gs->renderer);
 
     // テキストファイルを読み込む (この補助関数は後で作成)
-    LoadScript("assets/opening.txt", &gs->novel);
+    LoadScript("assets/opening.txt", &gs->openingNovel);
+    LoadScript("assets/ending.txt", &gs->endingNovel);
 
     // 野菜画像
     gs->veggies[0].texture = LoadTexture("vegetables/carrot.png", gs->renderer);
@@ -69,6 +73,22 @@ void LoadAssets(GameState *gs)
     // まず、敵のテクスチャを一度だけ読み込む
     SDL_Texture *enemyTexture = LoadTexture("enemies/enemy.png", gs->renderer);
 
+    SDL_Surface *surface = IMG_Load("assets/thanks.png");
+    if (!surface)
+    {
+        fprintf(stderr, "IMG_Load: %s\n", IMG_GetError());
+        // エラー処理（ゲームを終了するなど）を検討してください
+        return;
+    }
+    gs->thanksTexture = SDL_CreateTextureFromSurface(gs->renderer, surface);
+    SDL_FreeSurface(surface);
+    if (!gs->thanksTexture)
+    {
+        fprintf(stderr, "SDL_CreateTextureFromSurface: %s\n", SDL_GetError());
+        // エラー処理（ゲームを終了するなど）を検討してください
+        return;
+    }
+
     // forループを使って、全ての敵に同じテクスチャを設定する
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
@@ -80,6 +100,8 @@ void LoadAssets(GameState *gs)
     if (!gs->damageSound)
     { /* エラー処理 */
     }
+    gs->veggieGetSound = Mix_LoadWAV("sound/get.wav");
+    gs->gameOverSound = Mix_LoadWAV("sound/gameover.wav");
 
     // 矢印テクスチャの読み込み
     gs->arrowTextures[ARROW_UP] = LoadTexture("assets/arrow_up.png", gs->renderer);
@@ -183,11 +205,11 @@ bool InitGame(GameState *gs)
     // 野菜
     gs->veggiesCollected = 0;
     gs->veggies[0].isActive = true;
-    gs->veggies[0].rect = (SDL_Rect){400, 500, 80, 80};
+    gs->veggies[0].rect = (SDL_Rect){400, 500, 160, 160};
     gs->veggies[1].isActive = true;
-    gs->veggies[1].rect = (SDL_Rect){900, 300, 80, 80};
+    gs->veggies[1].rect = (SDL_Rect){900, 300, 160, 160};
     gs->veggies[2].isActive = true;
-    gs->veggies[2].rect = (SDL_Rect){1400, 600, 80, 80};
+    gs->veggies[2].rect = (SDL_Rect){1400, 600, 160, 160};
 
     // 敵
     for (int i = 0; i < MAX_ENEMIES; i++)
@@ -226,21 +248,39 @@ void Cleanup(GameState *gs)
         SDL_DestroyTexture(gs->enemies[0].texture);
 
     // 会話シーン用テクスチャの解放
-    SDL_DestroyTexture(gs->novel.characterTexture);
-    SDL_DestroyTexture(gs->novel.windowTexture);
+    SDL_DestroyTexture(gs->openingNovel.characterTexture);
+    SDL_DestroyTexture(gs->openingNovel.windowTexture);
+
+    SDL_DestroyTexture(gs->endingNovel.characterTexture);
+    SDL_DestroyTexture(gs->endingNovel.windowTexture);
+
+    SDL_DestroyTexture(gs->iconTexture);
+    SDL_DestroyTexture(gs->endingCharTexture);
+
+    if (gs->thanksTexture)
+    {
+        SDL_DestroyTexture(gs->thanksTexture);
+    }
 
     // スクリプト用メモリの解放
-    for (int i = 0; i < gs->novel.lineCount; i++)
+    for (int i = 0; i < gs->openingNovel.lineCount; i++)
     {
-        free(gs->novel.lines[i]); // strdupで確保したメモリを解放
+        free(gs->openingNovel.lines[i]); // strdupで確保したメモリを解放
     }
-    free(gs->novel.lines); // 行ポインタ配列自体を解放
+    free(gs->openingNovel.lines); // 行ポインタ配列自体を解放
 
+    for (int i = 0; i < gs->endingNovel.lineCount; i++)
+    {
+        free(gs->endingNovel.lines[i]); // strdupで確保したメモリを解放
+    }
+    free(gs->endingNovel.lines); // 行ポインタ配列自体を解放
     // フォントとサウンドの解放
     TTF_CloseFont(gs->font);
     TTF_CloseFont(gs->largeFont);
-    Mix_FreeChunk(gs->damageSound);
 
+    Mix_FreeChunk(gs->damageSound);
+    Mix_FreeChunk(gs->veggieGetSound);
+    Mix_FreeChunk(gs->gameOverSound);
     // SDLサブシステムの終了
     /*
     if (gs->ddrMat)

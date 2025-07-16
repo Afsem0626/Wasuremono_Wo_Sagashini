@@ -11,7 +11,7 @@
 #define MAX_ENEMIES 10
 #define MAX_ARROWS 18
 #define VISIBLE_ARROWS 4
-#define ARROW_ANIMATION_DURATION 0.3f // 矢印アニメーションの時間（0.3秒）
+#define ARROW_ANIMATION_DURATION 0.2f // 矢印アニメーションの時間(0.n)秒
 
 // ゲームシーン
 typedef enum
@@ -23,6 +23,7 @@ typedef enum
     SCENE_GAME_OVER,
     SCENE_NOVEL,
     SCENE_ENDING,
+    SCENE_THANKS,
 } GameScene;
 
 // 難易度用
@@ -108,16 +109,20 @@ typedef struct
     int minigamesCleared;  // クリアしたミニゲーム数
 
     // ノベル用変数
-    NovelState novel;
-
-    // オブジェクト
+    NovelState openingNovel;
+    char gameMessage[256]; // 表示するテキストを格納する文字列
+    float messageTimer;    // メッセージを特定の時間だけ表示するためのタイマー
+    NovelState endingNovel;
+    // char gameMessage[256]; // 表示するテキストを格納する文字列
+    // float messageTimer;    // メッセージを特定の時間だけ表示するためのタイマー
+    //  オブジェクト
     InputState input;
     Player player;
     GameObject veggies[MAX_VEGGIES];
     GameObject enemies[MAX_ENEMIES];
     GameObject door;
     int arrowSequence[MAX_ARROWS]; // 配列のサイズは最大値で確保
-    int arrowCount;                // ★★★ 追加：このステージで使う矢印の数 ★★★
+    int arrowCount;                // 各ステージで使う矢印の数
     int arrowPlayerProgress;
 
     // アニメーション用変数を追加
@@ -125,14 +130,24 @@ typedef struct
     float arrowAnimationTimer; // アニメーションの進行時間タイマー
     int clearedArrowIndex;     // どの矢印が消えるアニメーション中か
 
-    // アセット
+    // フォント
     TTF_Font *font;
     TTF_Font *largeFont; // ★★★ 追加 ★★★
+
+    // 効果音
     Mix_Chunk *damageSound;
+    Mix_Chunk *veggieGetSound;
+    Mix_Chunk *gameOverSound;
+
+    // 画像
     SDL_Texture *titleTexture;
     SDL_Texture *arrowTextures[MAX_ARROWS];
     SDL_Texture *doorLockedTexture;
     SDL_Texture *doorUnlockedTexture;
+    SDL_Texture *thanksTexture; // ★★★ 追加 ★★★
+    SDL_Texture *iconTexture;
+
+    SDL_Texture *endingCharTexture;
 
 } GameState;
 

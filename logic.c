@@ -3,13 +3,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
-const int PLAYER_SPEED = 20;
+const int PLAYER_SPEED = 10;
 
 static void UpdateTitleScene(GameState *gs, const InputState *input);
 static void UpdateDifficultyScene(GameState *gs, const InputState *input);
 static void UpdateNovelScene(GameState *gs, const InputState *input);
+static void SetGameMessage(GameState *gs, const char *message, float duration);
 static void UpdateGameOverScene(GameState *gs, const InputState *input);
+static void UpdateEndingScene(GameState *gs, const InputState *input);
+static void UpdateThanksScene(GameState *gs, const InputState *input);
 static void UpdateVeggieMinigame(GameState *gs, const InputState *input);
 static void UpdateStageClearScene(GameState *gs);
 static void UpdateArrowMinigame(GameState *gs, const InputState *input);
@@ -24,6 +28,15 @@ static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b);
 
 void UpdateGame(GameState *gs, const InputState *input)
 {
+    // ★★★ メッセージタイマーの更新処理を追加 ★★★
+    if (gs->messageTimer > 0)
+    {
+        gs->messageTimer -= (1.0f / 60.0f);
+        if (gs->messageTimer <= 0)
+        {
+            gs->gameMessage[0] = '\0'; // タイマーが切れたらメッセージを空にする
+        }
+    }
 
     switch (gs->currentScene)
     {
@@ -41,6 +54,7 @@ void UpdateGame(GameState *gs, const InputState *input)
         // 時間切れでゲームオーバーになる判定
         if (gs->stageTimer <= 0)
         {
+            PlaySound(gs->gameOverSound);
             gs->currentScene = SCENE_GAME_OVER;
             printf("時間切れ！ゲームオーバー！\n");
             break; // 時間切れなので、このフレームの他の処理は行わない
@@ -61,12 +75,14 @@ void UpdateGame(GameState *gs, const InputState *input)
     case SCENE_STAGE_CLEAR:
         UpdateStageClearScene(gs);
         break;
-
     case SCENE_NOVEL:
         UpdateNovelScene(gs, input);
         break;
     case SCENE_ENDING:
-        // 未実装
+        UpdateEndingScene(gs, input);
+        break;
+    case SCENE_THANKS: // ★★★ 追加 ★★★
+        UpdateThanksScene(gs, input);
         break;
     }
 }
@@ -79,7 +95,7 @@ static void UpdateTitleScene(GameState *gs, const InputState *input)
     {
         // StartNewRandomMinigame(gs);
         // gs->currentScene = SCENE_DIFFICULTY;
-        gs->novel.currentLine = 0; // 会話を最初からにする
+        gs->openingNovel.currentLine = 0; // 会話を最初からにする
         gs->currentScene = SCENE_NOVEL;
     }
 }
@@ -110,20 +126,62 @@ static void UpdateDifficultyScene(GameState *gs, const InputState *input)
     }
 }
 
-// ★★★ 新規追加 ★★★：会話シーンのロジック
 static void UpdateNovelScene(GameState *gs, const InputState *input)
 {
     // 何かパネルが「押された瞬間」なら
     if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed)
     {
-        gs->novel.currentLine++; // 次の行へ
+        gs->openingNovel.currentLine++; // 次の行へ
 
         // もし、スクリプトの最後まで進んだら
-        if (gs->novel.currentLine >= gs->novel.lineCount)
+        if (gs->openingNovel.currentLine >= gs->openingNovel.lineCount)
         {
             // 次のシーン（難易度選択）へ移行
             gs->currentScene = SCENE_DIFFICULTY;
         }
+    }
+}
+
+// ゲーム内メッセージを設定する関数
+static void SetGameMessage(GameState *gs, const char *message, float duration)
+{
+    strncpy(gs->gameMessage, message, sizeof(gs->gameMessage) - 1);
+    gs->gameMessage[sizeof(gs->gameMessage) - 1] = '\0'; // 安全対策
+    gs->messageTimer = duration;                         // メッセージを表示する時間（秒）
+}
+
+static void UpdateEndingScene(GameState *gs, const InputState *input)
+{
+    if (gs->transitionTimer > 0)
+    {
+        gs->transitionTimer -= (1.0f / 60.0f);
+        return; // タイマー作動中はキー入力を受け付けない
+    }
+
+    // ★★★ 以下にロジックを修正・追加 ★★★
+    // タイマー終了後、何かパネルが「押された瞬間」なら
+    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed)
+    {
+        // 次の行へ
+        gs->endingNovel.currentLine++;
+
+        if (gs->endingNovel.currentLine >= gs->endingNovel.lineCount)
+        {
+            // 次に表示するオープニング会話の行を0に戻しておく
+            gs->openingNovel.currentLine = 0;
+            // タイトル画面へ移行
+            gs->currentScene = SCENE_TITLE;
+        }
+    }
+}
+
+// logic.c に追加
+static void UpdateThanksScene(GameState *gs, const InputState *input)
+{
+    // 何かパネルが「押された瞬間」なら、タイトル画面に戻る
+    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed)
+    {
+        gs->currentScene = SCENE_TITLE;
     }
 }
 
@@ -146,6 +204,7 @@ static void UpdateVeggieMinigame(GameState *gs, const InputState *input)
     {
         printf("全ての野菜を回収！ 扉のロックが解除された！\n");
         gs->door.doorState = DOOR_UNLOCKED;
+        SetGameMessage(gs, "扉のロックが解除された！", 3.0f); // 3秒間メッセージを表示
         // ここでロック解除の効果音を鳴らす予定
     }
 }
@@ -172,7 +231,11 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
 
                 if (gs->minigamesCleared >= gs->minigamesRequired)
                 {
+                    gs->endingNovel.currentLine = 0;
                     gs->currentScene = SCENE_ENDING;
+                    // ★★★ フェード演出の時間を設定（例: 2秒） ★★★
+                    // 最初の1秒でフェードアウト、次の1秒でフェードイン
+                    gs->transitionTimer = 2.0f;
                 }
                 else
                 {
@@ -233,12 +296,16 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
     {
         // gs->player.hp--; // HPは減らさない
         PlaySound(gs->damageSound);
-        gs->arrowPlayerProgress = 0; // 最初からやり直し
+        SetGameMessage(gs, "ミス！最初から！", 2.0f); // 2秒間メッセージを表示
+        gs->arrowPlayerProgress = 0;                  // 最初からやり直し
     }
 
     // HPが0になったらゲームオーバー
     if (gs->player.hp <= 0)
+    {
+        PlaySound(gs->gameOverSound);
         gs->currentScene = SCENE_GAME_OVER;
+    }
 }
 
 static void StartNewRandomMinigame(GameState *gs)
@@ -282,6 +349,7 @@ static void CheckCollisions(GameState *gs)
         {
             gs->veggies[i].isActive = false;
             gs->veggiesCollected++;
+            PlaySound(gs->veggieGetSound);
         }
     }
 
@@ -294,25 +362,23 @@ static void CheckCollisions(GameState *gs)
             gs->enemies[i].isActive = false;
             PlaySound(gs->damageSound);
             printf("ダメージ！ 残りHP: %d\n", gs->player.hp);
+            SetGameMessage(gs, "ダメージ！", 2.0f); // 2秒間メッセージを表示
         }
     }
     // 扉との当たり判定
     if (gs->player.hp > 0 && gs->door.doorState == DOOR_UNLOCKED && DetectCollision(&gs->player.rect, &gs->door.rect))
     {
-        printf("扉に入った！ ミニゲーム1 クリア！\n");
-        gs->minigamesCleared++; // クリア数を増やす
-
-        // 目標数に達したかチェック
+        printf("扉に入った！ミニゲーム1 クリア！カットインへ\n");
+        gs->minigamesCleared++;
         if (gs->minigamesCleared >= gs->minigamesRequired)
         {
-            gs->currentScene = SCENE_ENDING; // 完全にゲームクリアならエンディングへ
-            printf("ゲームクリア！\n");
+            gs->endingNovel.currentLine = 0;
+            gs->currentScene = SCENE_ENDING;
         }
         else
         {
-            // まだ続くなら、カットイン画面に遷移するだけ
             gs->currentScene = SCENE_STAGE_CLEAR;
-            gs->transitionTimer = 2.0f; // カットインを2秒間表示する
+            gs->transitionTimer = 2.0f;
         }
     }
 }
@@ -374,7 +440,7 @@ static void ResetStage(GameState *gs)
     {
     case DIFF_DAY:
         gs->player.hp = 5;
-        gs->minigamesRequired = 3;
+        gs->minigamesRequired = 1;
         gs->veggiesRequired = 2;
         gs->stageTimer = 30.0f;
         // 敵の設定
@@ -467,16 +533,22 @@ static void ResetStage(GameState *gs)
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
         gs->veggies[i].isActive = true; // 全ての野菜を有効化
-        // 野菜の初期位置を再設定
-        gs->veggies[i].rect.x = 600 + (rand() % 800);
-        gs->veggies[i].rect.y = 150 + (rand() % 700);
+
+        // 野菜の初期位置を、画面全体にランダムに再設定
+        // X座標：画面の右半分（中央～右端）のどこか
+        // X座標：画面の左から300ピクセルの位置から、右端までの広い範囲
+        gs->veggies[i].rect.x = 300 + (rand() % (screen_w - 400));
+
+        // Y座標：画面の上端から下端まで（上下に少し余裕を持たせる）
+        gs->veggies[i].rect.y = 100 + (rand() % (screen_h - 200));
     }
 
     // ★★★ 敵の初期位置だけを設定する ★★★
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         gs->enemies[i].rect.x = screen_w + (i * 200) + (rand() % 300);
-        gs->enemies[i].rect.y = 100 + (rand() % 800);
+        // gs->enemies[i].rect.y = 100 + (rand() % 800);
+        gs->enemies[i].rect.y = rand() % (screen_h - gs->enemies[i].rect.h);
     }
 
     // 扉の状態をロック状態で初期化
