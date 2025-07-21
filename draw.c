@@ -8,6 +8,7 @@ static void DrawMainStage(GameState *gs);
 static void DrawNovelScene(GameState *gs);
 static void DrawStageClearScene(GameState *gs);
 static void DrawGameOverScene(GameState *gs);
+static void DrawPreEndingCutscene(GameState *gs);
 static void DrawEndingScene(GameState *gs);
 static void DrawThanksScene(GameState *gs);
 static void DrawVeggieMinigame(GameState *gs);
@@ -41,6 +42,9 @@ void DrawGame(GameState *gs)
         break;
     case SCENE_NOVEL:
         DrawNovelScene(gs);
+        break;
+    case SCENE_PRE_ENDING_CUTSCENE:
+        DrawPreEndingCutscene(gs);
         break;
     case SCENE_ENDING:
         DrawEndingScene(gs);
@@ -150,7 +154,7 @@ static void DrawMainStage(GameState *gs)
     }
 
     // キャラクターアイコンを描画 (メッセージボックスの左側に配置)
-    SDL_Rect iconRect = {120, 900, 100, 100};
+    SDL_Rect iconRect = {120, 830, 200, 200};
     // openingNovel.characterTexture の代わりに、新しい iconTexture を使う
     SDL_RenderCopy(gs->renderer, gs->iconTexture, NULL, &iconRect);
 
@@ -158,7 +162,8 @@ static void DrawMainStage(GameState *gs)
     if (gs->gameMessage[0] != '\0')
     {
         SDL_Color white = {255, 255, 255, 255};
-        DrawText(gs->renderer, gs->font, gs->gameMessage, 250, 930, white);
+
+        DrawText(gs->renderer, gs->font, gs->gameMessage, 300, 930, white);
     }
 
     // 4. HUDを描画 (最前面に表示)
@@ -441,4 +446,21 @@ static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, i
         return;
     SDL_RenderCopy(renderer, texture, NULL, &destRect);
     SDL_DestroyTexture(texture);
+}
+
+// draw.c に追加
+static void DrawPreEndingCutscene(GameState *gs)
+{
+    // まず、背景としてメインステージの画面をそのまま描画する
+    DrawMainStage(gs);
+
+    // その上に、半透明の白いフィルターをかける（特別感を演出）
+    SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(gs->renderer, 255, 255, 255, 128); // 半透明の白
+    SDL_RenderFillRect(gs->renderer, NULL);
+
+    // 「ALL STAGES CLEAR!」の文字を中央に大きく描画
+    SDL_Color black = {0, 0, 0, 255};
+    DrawText(gs->renderer, gs->largeFont, "ALL STAGES CLEAR!", 550, 350, black);
+    DrawText(gs->renderer, gs->largeFont, "YOU ARE FANTASTICK!", 550, 500, black);
 }

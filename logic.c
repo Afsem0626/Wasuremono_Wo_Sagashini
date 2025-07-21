@@ -12,6 +12,7 @@ static void UpdateDifficultyScene(GameState *gs, const InputState *input);
 static void UpdateNovelScene(GameState *gs, const InputState *input);
 static void SetGameMessage(GameState *gs, const char *message, float duration);
 static void UpdateGameOverScene(GameState *gs, const InputState *input);
+static void UpdatePreEndingCutscene(GameState *gs);
 static void UpdateEndingScene(GameState *gs, const InputState *input);
 static void UpdateThanksScene(GameState *gs, const InputState *input);
 static void UpdateVeggieMinigame(GameState *gs, const InputState *input);
@@ -77,6 +78,9 @@ void UpdateGame(GameState *gs, const InputState *input)
         break;
     case SCENE_NOVEL:
         UpdateNovelScene(gs, input);
+        break;
+    case SCENE_PRE_ENDING_CUTSCENE:
+        UpdatePreEndingCutscene(gs);
         break;
     case SCENE_ENDING:
         UpdateEndingScene(gs, input);
@@ -170,7 +174,7 @@ static void UpdateEndingScene(GameState *gs, const InputState *input)
             // 次に表示するオープニング会話の行を0に戻しておく
             gs->openingNovel.currentLine = 0;
             // タイトル画面へ移行
-            gs->currentScene = SCENE_TITLE;
+            gs->currentScene = SCENE_THANKS;
         }
     }
 }
@@ -204,7 +208,7 @@ static void UpdateVeggieMinigame(GameState *gs, const InputState *input)
     {
         printf("全ての野菜を回収！ 扉のロックが解除された！\n");
         gs->door.doorState = DOOR_UNLOCKED;
-        SetGameMessage(gs, "扉のロックが解除された！", 3.0f); // 3秒間メッセージを表示
+        SetGameMessage(gs, "先に進めるみたい！", 5.0f);
         // ここでロック解除の効果音を鳴らす予定
     }
 }
@@ -231,11 +235,8 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
 
                 if (gs->minigamesCleared >= gs->minigamesRequired)
                 {
-                    gs->endingNovel.currentLine = 0;
-                    gs->currentScene = SCENE_ENDING;
-                    // ★★★ フェード演出の時間を設定（例: 2秒） ★★★
-                    // 最初の1秒でフェードアウト、次の1秒でフェードイン
-                    gs->transitionTimer = 2.0f;
+                    gs->currentScene = SCENE_PRE_ENDING_CUTSCENE;
+                    gs->transitionTimer = 3.0f; // 特別なので少し長めに3秒表示
                 }
                 else
                 {
@@ -315,11 +316,13 @@ static void StartNewRandomMinigame(GameState *gs)
     {
         gs->currentMinigame = MINIGAME_VEGGIE;
         printf("次のミニゲーム: 野菜集め\n");
+        SetGameMessage(gs, "まずは野菜を拾わなくちゃ！", 5.0f); // 5秒間表示
     }
     else
     {
         gs->currentMinigame = MINIGAME_ARROWS;
         printf("次のミニゲーム: 矢印入力\n");
+        SetGameMessage(gs, "同じ矢印を踏んで迷わず帰ろう！", 5.0f); // 5秒間表示
     }
 }
 
@@ -373,7 +376,8 @@ static void CheckCollisions(GameState *gs)
         if (gs->minigamesCleared >= gs->minigamesRequired)
         {
             gs->endingNovel.currentLine = 0;
-            gs->currentScene = SCENE_ENDING;
+            gs->currentScene = SCENE_PRE_ENDING_CUTSCENE; // カットインへ
+            gs->transitionTimer = 3.0f;                   // 特別なので少し長
         }
         else
         {
@@ -566,7 +570,7 @@ static void ResetStage(GameState *gs)
         gs->enemies[i].isActive = true; // 全ての敵を有効化
         // 敵の初期位置を画面右外に再設定
         gs->enemies[i].rect.x = screen_w + (i * 200) + (rand() % 300);
-        gs->enemies[i].rect.y = 100 + (rand() % 800);
+        gs->enemies[i].rect.y = 20 + (rand() % (screen_h - 150));
     }
 
     // ミニゲーム2の状態をリセット
@@ -589,5 +593,20 @@ static void UpdateStageClearScene(GameState *gs)
     {
         StartNewRandomMinigame(gs);          // 次のミニゲームを開始
         gs->currentScene = SCENE_MAIN_STAGE; // 場面をメインステージに戻す
+    }
+}
+
+// logic.c に追加
+static void UpdatePreEndingCutscene(GameState *gs)
+{
+    // transitionTimerを少しずつ減らす
+    gs->transitionTimer -= (1.0f / 60.0f);
+
+    // タイマーが0になったら
+    if (gs->transitionTimer <= 0)
+    {
+        gs->endingNovel.currentLine = 0; // エンディング会話を最初からに
+        gs->currentScene = SCENE_ENDING; // 場面をエンディングに切り替える
+        gs->transitionTimer = 1.5f;      // フェードイン用にタイマーを再設定
     }
 }

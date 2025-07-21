@@ -20,6 +20,7 @@ typedef enum
     SCENE_DIFFICULTY,
     SCENE_MAIN_STAGE,
     SCENE_STAGE_CLEAR, // カットイン用
+    SCENE_PRE_ENDING_CUTSCENE,
     SCENE_GAME_OVER,
     SCENE_NOVEL,
     SCENE_ENDING,
@@ -115,6 +116,7 @@ typedef struct
     NovelState endingNovel;
     // char gameMessage[256]; // 表示するテキストを格納する文字列
     // float messageTimer;    // メッセージを特定の時間だけ表示するためのタイマー
+
     //  オブジェクト
     InputState input;
     Player player;
