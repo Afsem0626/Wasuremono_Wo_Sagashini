@@ -435,16 +435,24 @@ static void DrawHUD(GameState *gs)
     char hudText[128];
 
     sprintf(hudText, "ステージ: %d / %d | HP: %d | 野菜: %d / %d | 時間: %.0f",
-            gs->minigamesCleared + 1, // 現在のステージ数
-            gs->minigamesRequired,    // 目標ステージ数
+            gs->minigamesCleared + 1,
+            gs->minigamesRequired,
             gs->player.hp,
             gs->veggiesCollected,
             gs->veggiesRequired,
             gs->stageTimer);
 
-    // ★★★ 色の引数を追加 ★★★
     SDL_Color white = {255, 255, 255, 255};
     DrawText(gs->renderer, gs->font, hudText, 20, 20, white);
+    if (gs->currentMinigame == MINIGAME_VEGGIE)
+    {
+        DrawText(gs->renderer, gs->font, "おつかいリスト:", 1450, 20, (SDL_Color){255, 255, 255, 255});
+        for (int i = 0; i < gs->targetVeggieCount; i++)
+        {
+            SDL_Rect targetRect = {1600 + i * 90, 10, 80, 80}; // 90ピクセルずつ右にずらす
+            SDL_RenderCopy(gs->renderer, gs->veggieTextures[gs->targetVeggieTypes[i]], NULL, &targetRect);
+        }
+    }
 }
 
 static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color)
@@ -475,5 +483,5 @@ static void DrawPreEndingCutscene(GameState *gs)
     // 「ALL STAGES CLEAR!」の文字を中央に大きく描画
     SDL_Color black = {0, 0, 0, 255};
     DrawText(gs->renderer, gs->largeFont, "ALL STAGES CLEAR!", 550, 350, black);
-    DrawText(gs->renderer, gs->largeFont, "YOU ARE FANTASTICK!", 550, 500, black);
+    DrawText(gs->renderer, gs->largeFont, "You are fantastic!", 550, 500, black);
 }

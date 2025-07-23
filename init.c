@@ -59,11 +59,17 @@ void LoadAssets(GameState *gs)
     LoadScript("assets/ending.txt", &gs->endingNovel);
 
     // 野菜画像
-    gs->veggies[0].texture = LoadTexture("vegetables/carrot.png", gs->renderer);
+    /*gs->veggies[0].texture = LoadTexture("vegetables/carrot.png", gs->renderer);
     gs->veggies[1].texture = LoadTexture("vegetables/eggplant.png", gs->renderer);
     gs->veggies[2].texture = LoadTexture("vegetables/tomato.png", gs->renderer);
     gs->veggies[3].texture = LoadTexture("vegetables/turnip.png", gs->renderer);   // ★★★ 追加 ★★★
     gs->veggies[4].texture = LoadTexture("vegetables/mushroom.png", gs->renderer); // ★★★ 追加 ★★★
+    */
+    gs->veggieTextures[VEGGIE_CARROT] = LoadTexture("vegetables/carrot.png", gs->renderer);
+    gs->veggieTextures[VEGGIE_EGGPLANT] = LoadTexture("vegetables/eggplant.png", gs->renderer);
+    gs->veggieTextures[VEGGIE_TOMATO] = LoadTexture("vegetables/tomato.png", gs->renderer);
+    gs->veggieTextures[VEGGIE_TURNIP] = LoadTexture("vegetables/turnip.png", gs->renderer);
+    gs->veggieTextures[VEGGIE_MUSHROOM] = LoadTexture("vegetables/mushroom.png", gs->renderer);
 
     // 扉の画像
     gs->doorLockedTexture = LoadTexture("assets/door_locked.png", gs->renderer);

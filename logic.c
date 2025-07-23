@@ -22,7 +22,7 @@ static void StartNewRandomMinigame(GameState *gs);
 static void ResetStage(GameState *gs);
 static void UpdatePlayer(GameState *gs, const InputState *input);
 static void UpdateEnemies(GameState *gs);
-static void CheckCollisions(GameState *gs);
+static void CheckCollisions(GameState *gs, const InputState *input); // ← 修正後
 static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b);
 
 // main.c で呼び出す関数
@@ -212,7 +212,7 @@ static void UpdateVeggieMinigame(GameState *gs, const InputState *input)
 {
     UpdatePlayer(gs, input);
     UpdateEnemies(gs);
-    CheckCollisions(gs);
+    CheckCollisions(gs, input);
     if (gs->player.hp <= 0)
     {
         gs->currentScene = SCENE_GAME_OVER;
@@ -327,7 +327,7 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
 static void StartNewRandomMinigame(GameState *gs)
 {
     ResetStage(gs);
-    if (rand() % 2 == 0)
+    if (rand() % 3 != 2)
     {
         gs->currentMinigame = MINIGAME_VEGGIE;
         printf("次のミニゲーム: 野菜集め\n");
@@ -358,16 +358,40 @@ static void UpdateEnemies(GameState *gs)
     }
 }
 
-static void CheckCollisions(GameState *gs)
+static void CheckCollisions(GameState *gs, const InputState *input)
 {
+    // logic.c の CheckCollisions 関数（野菜との当たり判定部分）
+
     // 野菜との当たり判定
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
-        if (gs->veggies[i].isActive && DetectCollision(&gs->player.rect, &gs->veggies[i].rect))
+        // ★★★ 「かつ、Aボタンが押された瞬間なら」という条件を追加 ★★★
+        if (gs->veggies[i].isActive && DetectCollision(&gs->player.rect, &gs->veggies[i].rect) &&
+            input->a_pressed)
         {
-            gs->veggies[i].isActive = false;
-            gs->veggiesCollected++;
-            PlaySound(gs->veggieGetSound);
+            // ★★★ ターゲットと同じ種類の野菜かチェック ★★★
+            bool isTarget = false;
+            for (int j = 0; j < gs->targetVeggieCount; j++)
+            {
+                if (gs->veggies[i].veggieType == gs->targetVeggieTypes[j])
+                {
+                    isTarget = true;
+                    break;
+                }
+            }
+
+            if (isTarget)
+            {
+                gs->veggies[i].isActive = false;
+                gs->veggiesCollected++;
+                PlaySound(gs->veggieGetSound);
+            }
+            else
+            {
+                gs->player.hp--;
+                PlaySound(gs->damageSound);
+                gs->veggies[i].isActive = false;
+            }
         }
     }
 
@@ -459,8 +483,9 @@ static void ResetStage(GameState *gs)
     {
     case DIFF_DAY:
         gs->player.hp = 5;
+        gs->targetVeggieCount = 1;
+        gs->veggiesRequired = 1;
         gs->minigamesRequired = 1;
-        gs->veggiesRequired = 2;
         gs->stageTimer = 30.0f;
         // 敵の設定
         gs->enemies[0].isActive = true; // 1体だけ出現
@@ -472,7 +497,8 @@ static void ResetStage(GameState *gs)
 
     case DIFF_EVENING:
         gs->player.hp = 5;
-        gs->veggiesRequired = 3;
+        gs->targetVeggieCount = 2;
+        gs->veggiesRequired = 2;
         gs->minigamesRequired = 4;
         gs->stageTimer = 25.0f;
         // 敵の設定
@@ -485,7 +511,8 @@ static void ResetStage(GameState *gs)
 
     case DIFF_NIGHT:
         gs->player.hp = 5;
-        gs->veggiesRequired = 4;
+        gs->targetVeggieCount = 3;
+        gs->veggiesRequired = 3;
         gs->minigamesRequired = 4;
         gs->stageTimer = 25.0f;
         gs->enemies[0].isActive = true;
@@ -498,7 +525,7 @@ static void ResetStage(GameState *gs)
 
     case DIFF_IKUU:
         gs->player.hp = 3;
-        gs->veggiesRequired = 5;
+        gs->targetVeggieCount = 5;
         gs->minigamesRequired = 5;
         gs->stageTimer = 15.0f;
         for (int i; i < MAX_ENEMIES; i++)
@@ -549,17 +576,38 @@ static void ResetStage(GameState *gs)
 
     // 野菜の状態をリセット
 
+    VeggieType all_veggies[VEGGIE_TYPE_COUNT] = {VEGGIE_CARROT, VEGGIE_EGGPLANT, VEGGIE_TOMATO, VEGGIE_TURNIP, VEGGIE_MUSHROOM};
+    // 配列をシャッフルする（簡易的な方法）
+    for (int i = 0; i < VEGGIE_TYPE_COUNT; i++)
+    {
+        int j = rand() % VEGGIE_TYPE_COUNT;
+        VeggieType temp = all_veggies[i];
+        all_veggies[i] = all_veggies[j];
+        all_veggies[j] = temp;
+    }
+    // シャッフルした配列の先頭から、必要な数だけをターゲットとしてコピー
+    for (int i = 0; i < gs->targetVeggieCount; i++)
+    {
+        gs->targetVeggieTypes[i] = all_veggies[i];
+    }
+
     // 野菜の状態をリセット
     gs->veggiesCollected = 0;
-    for (int i = 0; i < MAX_VEGGIES; i++)
+    for (int i = 0; i < MAX_VEGGIES; i++) // MAX_VEGGIESは5になっているはず
     {
         // 難易度で設定された数 (veggiesRequired) よりも
         // インデックスが小さい野菜だけを有効にする
-        if (i < gs->veggiesRequired)
+        if (i < MAX_VEGGIES)
         {
             gs->veggies[i].isActive = true; // 表示する
             gs->veggies[i].rect.x = 300 + (rand() % (screen_w - 400));
             gs->veggies[i].rect.y = 100 + (rand() % (screen_h - 200));
+
+            // ★★★ 各野菜に、0番目から順番に種類とテクスチャを設定 ★★★
+            // これにより、全種類が1つずつ必ず配置される
+            VeggieType type = (VeggieType)i;
+            gs->veggies[i].veggieType = type;
+            gs->veggies[i].texture = gs->veggieTextures[type];
         }
         else
         {

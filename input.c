@@ -42,7 +42,7 @@ void HandleInput(GameState *gs, InputState *input)
     input->down_held = k_state[SDL_SCANCODE_DOWN] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_DOWN) : 0);
     input->left_held = k_state[SDL_SCANCODE_LEFT] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_LEFT) : 0);
     input->right_held = k_state[SDL_SCANCODE_RIGHT] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_RIGHT) : 0);
-    input->a_held = k_state[SDL_SCANCODE_Z] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_A) : 0);
+    input->a_held = k_state[SDL_SCANCODE_Z] || k_state[SDL_SCANCODE_RETURN] || k_state[SDL_SCANCODE_SPACE] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_A) : 0);
     input->b_held = k_state[SDL_SCANCODE_X] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_B) : 0);
 
     // --- 4. 「押された瞬間」を判定 ---

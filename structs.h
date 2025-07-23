@@ -62,6 +62,16 @@ typedef enum
 
 typedef enum
 {
+    VEGGIE_CARROT,
+    VEGGIE_EGGPLANT,
+    VEGGIE_TOMATO,
+    VEGGIE_TURNIP,
+    VEGGIE_MUSHROOM,
+    VEGGIE_TYPE_COUNT // 野菜の総種類数
+} VeggieType;
+
+typedef enum
+{
     DOOR_LOCKED,
     DOOR_UNLOCKED
 } DoorState;
@@ -79,6 +89,8 @@ typedef struct
     SDL_Texture *texture; // 画像
     int vx, vy;
     DoorState doorState; // 扉の状態
+
+    VeggieType veggieType; // 野菜の種類
 } GameObject;
 
 typedef struct
@@ -122,6 +134,14 @@ typedef struct
     Player player;
     GameObject veggies[MAX_VEGGIES];
     GameObject enemies[MAX_ENEMIES];
+
+    VeggieType targetVeggieType;                    // ★★★ 追加：今集めるべき野菜の種類 ★★★
+    SDL_Texture *veggieTextures[VEGGIE_TYPE_COUNT]; // ★★★ 追加：全野菜の画像を保持する配列 ★★★
+
+    // ★★★ 複数のターゲットを管理するように変更 ★★★
+    VeggieType targetVeggieTypes[VEGGIE_TYPE_COUNT]; // ターゲットの野菜種類を格納する配列
+    int targetVeggieCount;
+
     GameObject door;
     int arrowSequence[MAX_ARROWS]; // 配列のサイズは最大値で確保
     int arrowCount;                // 各ステージで使う矢印の数
