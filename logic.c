@@ -548,18 +548,23 @@ static void ResetStage(GameState *gs)
     gs->player.rect.y = (screen_h - gs->player.rect.h) / 2;
 
     // 野菜の状態をリセット
+
+    // 野菜の状態をリセット
     gs->veggiesCollected = 0;
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
-        gs->veggies[i].isActive = true; // 全ての野菜を有効化
-
-        // 野菜の初期位置を、画面全体にランダムに再設定
-        // X座標：画面の右半分（中央～右端）のどこか
-        // X座標：画面の左から300ピクセルの位置から、右端までの広い範囲
-        gs->veggies[i].rect.x = (rand() % (screen_w - 400));
-
-        // Y座標：画面の上端から下端まで（上下に少し余裕を持たせる）
-        gs->veggies[i].rect.y = (rand() % (screen_h - 200));
+        // 難易度で設定された数 (veggiesRequired) よりも
+        // インデックスが小さい野菜だけを有効にする
+        if (i < gs->veggiesRequired)
+        {
+            gs->veggies[i].isActive = true; // 表示する
+            gs->veggies[i].rect.x = 300 + (rand() % (screen_w - 400));
+            gs->veggies[i].rect.y = 100 + (rand() % (screen_h - 200));
+        }
+        else
+        {
+            gs->veggies[i].isActive = false; // それ以外は非表示
+        }
     }
 
     // ★★★ 敵の初期位置だけを設定する ★★★
