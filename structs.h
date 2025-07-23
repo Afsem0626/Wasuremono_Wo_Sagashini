@@ -7,11 +7,11 @@
 #include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
 
-#define MAX_VEGGIES 3
+#define MAX_VEGGIES 5
 #define MAX_ENEMIES 10
 #define MAX_ARROWS 18
 #define VISIBLE_ARROWS 4
-#define ARROW_ANIMATION_DURATION 0.2f // 矢印アニメーションの時間(0.n)秒
+#define ARROW_ANIMATION_DURATION 0.1f // 矢印アニメーションの時間(0.n)秒
 
 // ゲームシーン
 typedef enum
@@ -104,7 +104,7 @@ typedef struct
     int veggiesRequired;
     int veggiesCollected;
     float stageTimer;
-    float transitionTimer; // ★★★ カットイン表示用タイマーを追加 ★★★
+    float transitionTimer;
 
     int minigamesRequired; // クリアに必要なミニゲーム数
     int minigamesCleared;  // クリアしたミニゲーム数
@@ -146,7 +146,8 @@ typedef struct
     SDL_Texture *arrowTextures[MAX_ARROWS];
     SDL_Texture *doorLockedTexture;
     SDL_Texture *doorUnlockedTexture;
-    SDL_Texture *thanksTexture; // ★★★ 追加 ★★★
+    SDL_Texture *thanksTexture;
+    SDL_Texture *gameOverTexture;
     SDL_Texture *iconTexture;
 
     SDL_Texture *endingCharTexture;

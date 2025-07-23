@@ -112,10 +112,23 @@ static void DrawTitleScene(GameState *gs)
 
 static void DrawGameOverScene(GameState *gs)
 {
-    SDL_SetRenderDrawColor(gs->renderer, 80, 0, 0, 255); // 暗い赤色
+    // 背景を念のため黒でクリア
+    SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 255);
     SDL_RenderClear(gs->renderer);
-    SDL_Color white = {255, 255, 255, 255};
-    DrawText(gs->renderer, gs->font, "GAME OVER", 760, 490, white);
+
+    // ★★★ ゲームオーバー画像を画面全体に描画 ★★★
+    if (gs->gameOverTexture != NULL)
+    {
+        // 第3引数と第4引数をNULLにすると、
+        // テクスチャがウィンドウ全体に引き伸ばされて表示されます。
+        SDL_RenderCopy(gs->renderer, gs->gameOverTexture, NULL, NULL);
+    }
+    else
+    {
+        // もし画像の読み込みに失敗していたら、代わりにテキストを表示
+        SDL_Color red = {255, 0, 0, 255};
+        DrawText(gs->renderer, gs->font, "GAME OVER", 760, 490, red);
+    }
 }
 
 static void DrawMainStage(GameState *gs)

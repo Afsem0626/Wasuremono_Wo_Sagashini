@@ -49,6 +49,8 @@ void LoadAssets(GameState *gs)
     gs->openingNovel.characterTexture = LoadTexture("assets/yuri_stand.png", gs->renderer);
     gs->endingCharTexture = LoadTexture("assets/yuri_ending.png", gs->renderer);
     gs->iconTexture = LoadTexture("assets/yuri_icon.png", gs->renderer);
+    gs->thanksTexture = LoadTexture("assets/thanks.png", gs->renderer);
+    gs->gameOverTexture = LoadTexture("assets/game_over.png", gs->renderer);
 
     gs->openingNovel.windowTexture = LoadTexture("assets/message_window.png", gs->renderer);
 
@@ -60,21 +62,15 @@ void LoadAssets(GameState *gs)
     gs->veggies[0].texture = LoadTexture("vegetables/carrot.png", gs->renderer);
     gs->veggies[1].texture = LoadTexture("vegetables/eggplant.png", gs->renderer);
     gs->veggies[2].texture = LoadTexture("vegetables/tomato.png", gs->renderer);
+    gs->veggies[3].texture = LoadTexture("vegetables/turnip.png", gs->renderer);   // ★★★ 追加 ★★★
+    gs->veggies[4].texture = LoadTexture("vegetables/mushroom.png", gs->renderer); // ★★★ 追加 ★★★
 
     // 扉の画像
     gs->doorLockedTexture = LoadTexture("assets/door_locked.png", gs->renderer);
     gs->doorUnlockedTexture = LoadTexture("assets/door_unlocked.png", gs->renderer);
 
-    // 敵画像
-    /*
-    gs->enemies[0].texture = LoadTexture("enemies/enemy.png", gs->renderer);
-    gs->enemies[1].texture = gs->enemies[0].texture; // 2体目は同じ画像を使う
-    */
     // まず、敵のテクスチャを一度だけ読み込む
     SDL_Texture *enemyTexture = LoadTexture("enemies/enemy.png", gs->renderer);
-
-    gs->thanksTexture = LoadTexture("assets/thanks.png", gs->renderer); // ★★★ この行があることを確認 ★★★
-    // ...
 
     SDL_Surface *surface = IMG_Load("assets/thanks.png");
     if (!surface)
@@ -171,13 +167,21 @@ bool InitGame(GameState *gs)
         return false;
     }
 
-    // ウィンドウとレンダラーの作成
-    gs->window = SDL_CreateWindow("Wasuremono Wo Sagashini",
+    // 修正前
+    // gs->window = SDL_CreateWindow("Wasuremono Wo Sagashini",
+    //                               SDL_WINDOWPOS_UNDEFINED,
+    //                               SDL_WINDOWPOS_UNDEFINED,
+    //                               1920,
+    //                               1080,
+    //                               SDL_WINDOW_SHOWN);
+
+    // 修正後
+    gs->window = SDL_CreateWindow("忘れ物を探シニ",
                                   SDL_WINDOWPOS_UNDEFINED,
                                   SDL_WINDOWPOS_UNDEFINED,
-                                  1920,
-                                  1080,
-                                  SDL_WINDOW_SHOWN);
+                                  0, // 0に設定
+                                  0, // 0に設定
+                                  SDL_WINDOW_FULLSCREEN_DESKTOP);
     if (!gs->window)
     { /* エラー処理 */
         return false;
@@ -205,14 +209,14 @@ bool InitGame(GameState *gs)
     gs->player.rect = (SDL_Rect){100, (screen_h - 100) / 2, 100, 100};
 
     // 野菜
+    /**/
     gs->veggiesCollected = 0;
-    gs->veggies[0].isActive = true;
-    gs->veggies[0].rect = (SDL_Rect){400, 500, 160, 160};
-    gs->veggies[1].isActive = true;
-    gs->veggies[1].rect = (SDL_Rect){900, 300, 160, 160};
-    gs->veggies[2].isActive = true;
-    gs->veggies[2].rect = (SDL_Rect){1400, 600, 160, 160};
-
+    for (int i = 0; i < MAX_VEGGIES; i++)
+    {
+        gs->veggies[i].isActive = false;
+        gs->veggies[i].rect = (SDL_Rect){0, 0, 160, 160}; // 初期位置は後で設定
+        gs->veggies[i].texture = NULL;                    // テクスチャは後で読み込む
+    }
     // 敵
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
@@ -255,6 +259,8 @@ void Cleanup(GameState *gs)
 
     SDL_DestroyTexture(gs->endingNovel.characterTexture);
     SDL_DestroyTexture(gs->endingNovel.windowTexture);
+
+    SDL_DestroyTexture(gs->gameOverTexture);
 
     SDL_DestroyTexture(gs->iconTexture);
     SDL_DestroyTexture(gs->endingCharTexture);

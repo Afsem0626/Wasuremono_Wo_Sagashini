@@ -57,6 +57,7 @@ void UpdateGame(GameState *gs, const InputState *input)
         {
             PlaySound(gs->gameOverSound);
             gs->currentScene = SCENE_GAME_OVER;
+            gs->transitionTimer = 1.5f;
             printf("時間切れ！ゲームオーバー！\n");
             break; // 時間切れなので、このフレームの他の処理は行わない
         }
@@ -191,9 +192,19 @@ static void UpdateThanksScene(GameState *gs, const InputState *input)
 
 static void UpdateGameOverScene(GameState *gs, const InputState *input)
 {
-    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed)
+    // タイマーがまだ残っている間は、それを減らすだけ
+    if (gs->transitionTimer > 0)
     {
-        gs->currentScene = SCENE_TITLE;
+        gs->transitionTimer -= (1.0f / 60.0f); // 60FPSを仮定
+    }
+    // タイマーが終わってから、初めてキー入力を受け付ける
+    else
+    {
+        // 何かパネルが「押された瞬間」なら、タイトル画面に戻る
+        if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed)
+        {
+            gs->currentScene = SCENE_TITLE;
+        }
     }
 }
 
@@ -203,7 +214,10 @@ static void UpdateVeggieMinigame(GameState *gs, const InputState *input)
     UpdateEnemies(gs);
     CheckCollisions(gs);
     if (gs->player.hp <= 0)
+    {
         gs->currentScene = SCENE_GAME_OVER;
+        gs->transitionTimer = 1.5f;
+    }
     if (gs->veggiesCollected >= gs->veggiesRequired && gs->door.doorState == DOOR_LOCKED)
     {
         printf("全ての野菜を回収！ 扉のロックが解除された！\n");
@@ -236,7 +250,7 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
                 if (gs->minigamesCleared >= gs->minigamesRequired)
                 {
                     gs->currentScene = SCENE_PRE_ENDING_CUTSCENE;
-                    gs->transitionTimer = 3.0f; // 特別なので少し長めに3秒表示
+                    gs->transitionTimer = 1.5f; // 特別なので少し長めに3秒表示
                 }
                 else
                 {
@@ -306,6 +320,7 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
     {
         PlaySound(gs->gameOverSound);
         gs->currentScene = SCENE_GAME_OVER;
+        gs->transitionTimer = 1.5f;
     }
 }
 
@@ -522,9 +537,9 @@ static void ResetStage(GameState *gs)
     }
 
     // プレイヤーの状態をリセット
-    gs->player.hp = 2;
+    // gs->player.hp = 2;
     // クリアに必要な野菜の数を設定
-    gs->veggiesRequired = MAX_VEGGIES;
+    // gs->veggiesRequired = MAX_VEGGIES;
 
     // 画面サイズを取得して、プレイヤーを初期位置（左側の中央）に配置
     int screen_w, screen_h;
@@ -541,10 +556,10 @@ static void ResetStage(GameState *gs)
         // 野菜の初期位置を、画面全体にランダムに再設定
         // X座標：画面の右半分（中央～右端）のどこか
         // X座標：画面の左から300ピクセルの位置から、右端までの広い範囲
-        gs->veggies[i].rect.x = 300 + (rand() % (screen_w - 400));
+        gs->veggies[i].rect.x = (rand() % (screen_w - 400));
 
         // Y座標：画面の上端から下端まで（上下に少し余裕を持たせる）
-        gs->veggies[i].rect.y = 100 + (rand() % (screen_h - 200));
+        gs->veggies[i].rect.y = (rand() % (screen_h - 200));
     }
 
     // ★★★ 敵の初期位置だけを設定する ★★★

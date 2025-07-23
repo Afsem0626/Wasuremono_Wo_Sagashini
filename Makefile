@@ -1,4 +1,4 @@
-EXEC = ./step29_test
+EXEC = ./game
 
 # 使用するCコンパイラ
 CC = gcc

@@ -10,8 +10,8 @@ enum
     DDR_DOWN = 14,
     DDR_LEFT = 15,
     DDR_RIGHT = 13,
-    DDR_A = 4,
-    DDR_B = 5
+    DDR_A = 1,
+    DDR_B = 2,
 };
 
 void HandleInput(GameState *gs, InputState *input)
