@@ -415,7 +415,7 @@ static void DrawHUD(GameState *gs)
     DrawText(gs->renderer, gs->font, hudText, 20, 20, white);
     if (gs->currentMinigame == MINIGAME_VEGGIE)
     {
-        DrawText(gs->renderer, gs->font, "おつかいリスト:", 1400, 20, (SDL_Color){255, 255, 255, 255});
+        DrawText(gs->renderer, gs->font, "おつかいリスト:", 1200, 20, (SDL_Color){255, 255, 255, 255});
         for (int i = 0; i < gs->targetVeggieCount; i++)
         {
             SDL_Rect targetRect = {1500 + i * 90, 10, 80, 80}; // 90ピクセルずつ右にずらす
@@ -452,5 +452,5 @@ static void DrawPreEndingCutscene(GameState *gs)
     // 「ALL STAGES CLEAR!」の文字を中央に大きく描画
     SDL_Color black = {0, 0, 0, 255};
     DrawText(gs->renderer, gs->largeFont, "ALL STAGES CLEAR!", 550, 350, black);
-    DrawText(gs->renderer, gs->largeFont, "You are fantastic!", 550, 500, black);
+    DrawText(gs->renderer, gs->largeFont, "Congratulations!", 550, 500, black);
 }
