@@ -528,7 +528,7 @@ static void ResetStage(GameState *gs)
         gs->targetVeggieCount = 5;
         gs->minigamesRequired = 5;
         gs->stageTimer = 15.0f;
-        for (int i; i < MAX_ENEMIES; i++)
+        for (int i = 0; i < MAX_ENEMIES; i++)
         {
             if (i < 5)
             { // 最初の5体だけを有効にする
