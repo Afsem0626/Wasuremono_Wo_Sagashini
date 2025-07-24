@@ -234,7 +234,7 @@ bool InitGame(GameState *gs)
 
     gs->isRunning = true;
 
-    // ★★★ お題となる矢印シーケンスを初期化（テスト用） ★★★
+    // お題となる矢印を初期化
     gs->arrowSequence[0] = ARROW_LEFT;
     gs->arrowSequence[1] = ARROW_RIGHT;
     gs->arrowSequence[2] = ARROW_DOWN;

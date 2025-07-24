@@ -69,6 +69,7 @@ void DrawDifficultyScene(GameState *gs)
         "異空 (Expert)"};
 
     // 画面をクリア（背景色）
+    // 修正箇所
     SDL_SetRenderDrawColor(gs->renderer, 30, 30, 50, 255); // 深い青色
     SDL_RenderClear(gs->renderer);
 
@@ -235,10 +236,6 @@ static void DrawStageClearScene(GameState *gs)
     DrawText(gs->renderer, gs->largeFont, "STAGE CLEAR!", 700, 450, white);
 }
 
-// draw.c に追加
-
-// draw.c
-
 static void DrawEndingScene(GameState *gs)
 {
 
@@ -271,37 +268,7 @@ static void DrawEndingScene(GameState *gs)
         SDL_Color white = {255, 255, 255, 255};
         DrawText(gs->renderer, gs->font, gs->endingNovel.lines[gs->endingNovel.currentLine], 150, 830, white);
     }
-
-    /*
-    // --- 2. その上に、だんだん透明になる黒いフィルターをかける（フェードイン演出） ---
-    if (gs->transitionTimer > 0)
-    {
-        // 進行度 (1.0 -> 0.0)
-        float progress = gs->transitionTimer / 1.5f; // 1.5秒かけてフェードイン
-        if (progress < 0.0f)
-            progress = 0.0f;
-
-        SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_BLEND);
-        // 透明度 (255 -> 0)
-        SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, (Uint8)(255 * progress));
-        SDL_RenderFillRect(gs->renderer, NULL);
-        SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_NONE);
-    }
-        */
 }
-
-// 以下は旧エンディング
-/*static void DrawEndingScene(GameState *gs)
-{
-    // 背景を明るいクリーム色でクリア
-    SDL_SetRenderDrawColor(gs->renderer, 250, 250, 210, 255);
-    SDL_RenderClear(gs->renderer);
-
-    SDL_Color white = {255, 255, 255, 255};
-    DrawText(gs->renderer, gs->font, "STAGE CLEAR", 760, 400, white);
-    DrawText(gs->renderer, gs->font, "Congratulations!", 780, 500, white);
-    DrawText(gs->renderer, gs->font, "パネルをふんでタイトルへ", 700, 700, white);
-}*/
 
 static void DrawThanksScene(GameState *gs)
 {
@@ -443,6 +410,8 @@ static void DrawHUD(GameState *gs)
             gs->stageTimer);
 
     SDL_Color white = {255, 255, 255, 255};
+    SDL_Color black = {0, 0, 0, 255};
+
     DrawText(gs->renderer, gs->font, hudText, 20, 20, white);
     if (gs->currentMinigame == MINIGAME_VEGGIE)
     {

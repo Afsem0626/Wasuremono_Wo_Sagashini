@@ -86,7 +86,7 @@ void UpdateGame(GameState *gs, const InputState *input)
     case SCENE_ENDING:
         UpdateEndingScene(gs, input);
         break;
-    case SCENE_THANKS: // ★★★ 追加 ★★★
+    case SCENE_THANKS:
         UpdateThanksScene(gs, input);
         break;
     }
@@ -134,7 +134,7 @@ static void UpdateDifficultyScene(GameState *gs, const InputState *input)
 static void UpdateNovelScene(GameState *gs, const InputState *input)
 {
     // 何かパネルが「押された瞬間」なら
-    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed)
+    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed || input->b_pressed)
     {
         gs->openingNovel.currentLine++; // 次の行へ
 
@@ -165,7 +165,7 @@ static void UpdateEndingScene(GameState *gs, const InputState *input)
 
     // ★★★ 以下にロジックを修正・追加 ★★★
     // タイマー終了後、何かパネルが「押された瞬間」なら
-    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed)
+    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed || input->b_pressed)
     {
         // 次の行へ
         gs->endingNovel.currentLine++;
@@ -184,7 +184,7 @@ static void UpdateEndingScene(GameState *gs, const InputState *input)
 static void UpdateThanksScene(GameState *gs, const InputState *input)
 {
     // 何かパネルが「押された瞬間」なら、タイトル画面に戻る
-    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed)
+    if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed || input->b_pressed)
     {
         gs->currentScene = SCENE_TITLE;
     }
@@ -201,7 +201,7 @@ static void UpdateGameOverScene(GameState *gs, const InputState *input)
     else
     {
         // 何かパネルが「押された瞬間」なら、タイトル画面に戻る
-        if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed)
+        if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed || input->b_pressed)
         {
             gs->currentScene = SCENE_TITLE;
         }
