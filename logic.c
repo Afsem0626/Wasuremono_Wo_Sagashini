@@ -484,7 +484,7 @@ static void ResetStage(GameState *gs)
         gs->player.hp = 5;
         gs->targetVeggieCount = 1;
         gs->veggiesRequired = 1;
-        gs->minigamesRequired = 1;
+        gs->minigamesRequired = 5;
         gs->stageTimer = 30.0f;
         // 敵の設定
         gs->enemies[0].isActive = true;
@@ -495,10 +495,10 @@ static void ResetStage(GameState *gs)
         break;
 
     case DIFF_EVENING:
-        gs->player.hp = 5;
+        gs->player.hp = 4;
         gs->targetVeggieCount = 2;
         gs->veggiesRequired = 2;
-        gs->minigamesRequired = 4;
+        gs->minigamesRequired = 6;
         gs->stageTimer = 25.0f;
         // 敵の設定
         gs->enemies[0].isActive = true;
@@ -509,11 +509,11 @@ static void ResetStage(GameState *gs)
         break;
 
     case DIFF_NIGHT:
-        gs->player.hp = 5;
+        gs->player.hp = 4;
         gs->targetVeggieCount = 3;
         gs->veggiesRequired = 3;
-        gs->minigamesRequired = 4;
-        gs->stageTimer = 25.0f;
+        gs->minigamesRequired = 8;
+        gs->stageTimer = 18.0f;
         gs->enemies[0].isActive = true;
         gs->enemies[0].vx = -10;
         gs->enemies[1].isActive = true;
@@ -523,11 +523,11 @@ static void ResetStage(GameState *gs)
         break;
 
     case DIFF_IKUU:
-        gs->player.hp = 3;
+        gs->player.hp = 2;
         gs->targetVeggieCount = 5;
         gs->veggiesRequired = 5;
-        gs->minigamesRequired = 5;
-        gs->stageTimer = 15.0f;
+        gs->minigamesRequired = 10;
+        gs->stageTimer = 10.0f;
         for (int i = 0; i < MAX_ENEMIES; i++)
         {
             if (i < 5)
@@ -541,7 +541,7 @@ static void ResetStage(GameState *gs)
             }
         }
 
-        gs->arrowCount = 10;
+        gs->arrowCount = 14;
         break;
 
     // テスト用
