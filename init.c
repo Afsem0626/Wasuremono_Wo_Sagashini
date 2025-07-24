@@ -26,12 +26,12 @@ SDL_Texture *LoadTexture(const char *path, SDL_Renderer *renderer)
 void LoadAssets(GameState *gs)
 {
     // フォント
-    gs->font = TTF_OpenFont("ZenOldMincho-Bold.ttf", 28);
+    gs->font = TTF_OpenFont("assets/ZenOldMincho-Bold.ttf", 28);
     if (!gs->font)
     { /* エラー処理 */
         return;
     }
-    gs->largeFont = TTF_OpenFont("ZenOldMincho-Bold.ttf", 72);
+    gs->largeFont = TTF_OpenFont("assets/ZenOldMincho-Bold.ttf", 72);
     if (!gs->largeFont)
     {
         fprintf(stderr, "大きめのフォントのロードに失敗: %s\n", TTF_GetError());

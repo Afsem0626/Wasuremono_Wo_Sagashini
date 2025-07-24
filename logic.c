@@ -319,7 +319,7 @@ static void StartNewRandomMinigame(GameState *gs)
     {
         gs->currentMinigame = MINIGAME_VEGGIE;
         // printf("次のミニゲーム: 野菜集め\n");
-        SetGameMessage(gs, "まずは野菜を拾わなくちゃ！(マットのAボタン、それかZキーで拾えるよ～)", 5.0f); // 5秒間表示
+        SetGameMessage(gs, "まずは右上のリストに載ってる野菜を拾わなくちゃ！(マットのAボタン、それかZキーで拾えるよ～)", 5.0f); // 5秒間表示
     }
     else
     {
