@@ -161,6 +161,9 @@ typedef struct
     Mix_Chunk *veggieGetSound;
     Mix_Chunk *gameOverSound;
 
+    int veggieGetChannel;
+    int gameOverChannel;
+
     // 画像
     SDL_Texture *titleTexture;
     SDL_Texture *arrowTextures[MAX_ARROWS];

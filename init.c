@@ -166,11 +166,15 @@ bool InitGame(GameState *gs)
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) < 0 ||
         !(IMG_Init(IMG_INIT_PNG)) ||
         TTF_Init() == -1 ||
-        Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+        Mix_OpenAudio(11025, MIX_DEFAULT_FORMAT, 2, 1024) < 0) // 2048から1024に変更
     {
         fprintf(stderr, "ライブラリの初期化に失敗しました: %s\n", SDL_GetError());
         return false;
     }
+
+    Mix_AllocateChannels(2);
+    gs->veggieGetChannel = 0; // 0番チャンネルは野菜取得音用
+    gs->gameOverChannel = 1;
 
     // 修正前
     /*gs->window = SDL_CreateWindow("Wasuremono Wo Sagashini",

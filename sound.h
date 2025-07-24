@@ -3,6 +3,5 @@
 
 #include "structs.h"
 
-void PlaySound(Mix_Chunk *sound);
-
+void PlaySoundOnChannel(Mix_Chunk *sound, int channel);
 #endif // SOUND_H

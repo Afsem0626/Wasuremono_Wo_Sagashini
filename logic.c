@@ -53,7 +53,7 @@ void UpdateGame(GameState *gs, const InputState *input)
         // 時間切れでゲームオーバーになる判定
         if (gs->stageTimer <= 0)
         {
-            PlaySound(gs->gameOverSound);
+            PlaySoundOnChannel(gs->gameOverSound, gs->gameOverChannel);
             gs->currentScene = SCENE_GAME_OVER;
             gs->transitionTimer = 1.5f;
             // printf("時間切れ！ゲームオーバー！\n");
@@ -306,7 +306,7 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
     // HPが0になったらゲームオーバー
     if (gs->player.hp <= 0)
     {
-        PlaySound(gs->gameOverSound);
+        PlaySoundOnChannel(gs->gameOverSound, gs->gameOverChannel);
         gs->currentScene = SCENE_GAME_OVER;
         gs->transitionTimer = 1.5f;
     }
@@ -370,7 +370,7 @@ static void CheckCollisions(GameState *gs, const InputState *input)
             {
                 gs->veggies[i].isActive = false;
                 gs->veggiesCollected++;
-                PlaySound(gs->veggieGetSound);
+                PlaySoundOnChannel(gs->veggieGetSound, gs->veggieGetChannel);
             }
             else
             {
