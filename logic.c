@@ -298,7 +298,7 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
     else if (wrong_input)
     {
         // gs->player.hp--; // HPは減らさない
-        PlaySound(gs->damageSound);
+        // PlaySound(gs->damageSound);
         SetGameMessage(gs, "ミスった～！最初からになっちゃった！", 2.0f); // 2秒間メッセージを表示
         gs->arrowPlayerProgress = 0;                                      // 最初からやり直し
     }
@@ -319,7 +319,7 @@ static void StartNewRandomMinigame(GameState *gs)
     {
         gs->currentMinigame = MINIGAME_VEGGIE;
         // printf("次のミニゲーム: 野菜集め\n");
-        SetGameMessage(gs, "まずは野菜を拾わなくちゃ！", 5.0f); // 5秒間表示
+        SetGameMessage(gs, "まずは野菜を拾わなくちゃ！(マットのAボタン、それかZキーで拾えるよ～)", 5.0f); // 5秒間表示
     }
     else
     {
@@ -374,9 +374,12 @@ static void CheckCollisions(GameState *gs, const InputState *input)
             }
             else
             {
+                // 当初はhpを減らすようにしていたが、鬼畜すぎたので修正
+                /*
                 gs->player.hp--;
                 PlaySound(gs->damageSound);
                 gs->veggies[i].isActive = false;
+                */
             }
         }
     }
@@ -384,13 +387,27 @@ static void CheckCollisions(GameState *gs, const InputState *input)
     // 敵との当たり判定
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
-        if (gs->enemies[i].isActive && DetectCollision(&gs->player.rect, &gs->enemies[i].rect))
+        if (gs->enemies[i].isActive)
         {
-            gs->player.hp--;
-            gs->enemies[i].isActive = false;
-            PlaySound(gs->damageSound);
-            // printf("ダメージ！ 残りHP: %d\n", gs->player.hp);
-            SetGameMessage(gs, "痛ったー！ぶつかっちゃった...", 2.0f); // 2秒間メッセージを表示
+            SDL_Rect playerHitbox = gs->player.rect;
+            playerHitbox.x += 10; // 左右から20ピクセルずつ内側に
+            playerHitbox.w -= 20; // その分、幅を合計40ピクセル小さくする
+            playerHitbox.y += 10; // 上下から20ピクセルずつ内側に
+            playerHitbox.h -= 20; // その分、高さを合計40ピクセル小さくする
+
+            SDL_Rect enemyHitbox = gs->enemies[i].rect;
+            enemyHitbox.x += 15; // 左右から15ピクセルずつ内側に
+            enemyHitbox.w -= 30;
+            enemyHitbox.y += 15; // 上下から15ピクセルずつ内側に
+            enemyHitbox.h -= 30;
+
+            if (DetectCollision(&playerHitbox, &enemyHitbox))
+            {
+                gs->player.hp--;
+                gs->enemies[i].isActive = false;
+                // PlaySound(gs->damageSound);
+                SetGameMessage(gs, "痛ったー！ぶつかっちゃった...", 2.0f);
+            }
         }
     }
     // 扉との当たり判定

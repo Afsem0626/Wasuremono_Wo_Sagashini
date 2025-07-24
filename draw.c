@@ -1,7 +1,6 @@
 #include "draw.h"
 #include <stdio.h>
 
-// --- このファイル内だけで使う「静的関数」の前方宣言 ---
 static void DrawText(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color);
 static void DrawTitleScene(GameState *gs);
 static void DrawMainStage(GameState *gs);
@@ -117,7 +116,6 @@ static void DrawGameOverScene(GameState *gs)
     SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 255);
     SDL_RenderClear(gs->renderer);
 
-    // ★★★ ゲームオーバー画像を画面全体に描画 ★★★
     if (gs->gameOverTexture != NULL)
     {
         // 第3引数と第4引数をNULLにすると、
@@ -134,16 +132,8 @@ static void DrawGameOverScene(GameState *gs)
 
 static void DrawMainStage(GameState *gs)
 {
-    if (gs->bgTextures[gs->difficulty] != NULL)
-    {
-        SDL_RenderCopy(gs->renderer, gs->bgTextures[gs->difficulty], NULL, NULL);
-    }
-    else
-    {
-        // もし背景が読み込めていなければ、単色で塗りつぶす
-        SDL_SetRenderDrawColor(gs->renderer, 200, 200, 220, 255);
-        SDL_RenderClear(gs->renderer);
-    }
+    SDL_SetRenderDrawColor(gs->renderer, 135, 206, 235, 255);
+    SDL_RenderClear(gs->renderer);
     // 現在のミニゲームに応じて描画内容を切り替える
     if (gs->currentMinigame == MINIGAME_VEGGIE)
     {

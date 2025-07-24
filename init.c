@@ -5,7 +5,6 @@
 
 static void LoadScript(const char *path, NovelState *novel);
 
-// テクスチャ読み込みの補助関数
 SDL_Texture *LoadTexture(const char *path, SDL_Renderer *renderer)
 {
     SDL_Surface *loadedSurface = IMG_Load(path);
@@ -32,7 +31,7 @@ void LoadAssets(GameState *gs)
     { /* エラー処理 */
         return;
     }
-    gs->largeFont = TTF_OpenFont("ZenOldMincho-Bold.ttf", 72); // 例：大きめのフォントサイズ
+    gs->largeFont = TTF_OpenFont("ZenOldMincho-Bold.ttf", 72);
     if (!gs->largeFont)
     {
         fprintf(stderr, "大きめのフォントのロードに失敗: %s\n", TTF_GetError());
@@ -42,11 +41,13 @@ void LoadAssets(GameState *gs)
     // タイトル画面
     gs->titleTexture = LoadTexture("assets/title_screen.png", gs->renderer);
 
-    // 難易度ごとの背景画像
+    // 難易度ごとの背景画像を以下のコードで実装しようとしたが、動作が重くなったので辞めにした。
+    /*
     gs->bgTextures[DIFF_DAY] = LoadTexture("assets/bg_day.png", gs->renderer);
     gs->bgTextures[DIFF_EVENING] = LoadTexture("assets/bg_evening.png", gs->renderer);
     gs->bgTextures[DIFF_NIGHT] = LoadTexture("assets/bg_night.png", gs->renderer);
     gs->bgTextures[DIFF_IKUU] = LoadTexture("assets/bg_ikuu.png", gs->renderer);
+    */
 
     // プレイヤー画像（羽のイラスト）
     gs->player.texture = LoadTexture("assets/player.png", gs->renderer);
@@ -98,10 +99,11 @@ void LoadAssets(GameState *gs)
     }
 
     // 効果音
-    gs->damageSound = Mix_LoadWAV("sound/damage.wav");
+    /*gs->damageSound = Mix_LoadWAV("sound/damage.wav");
     if (!gs->damageSound)
-    { /* エラー処理 */
+    {  エラー処理
     }
+    */
     gs->veggieGetSound = Mix_LoadWAV("sound/get.wav");
     gs->gameOverSound = Mix_LoadWAV("sound/gameover.wav");
 
@@ -171,13 +173,13 @@ bool InitGame(GameState *gs)
     }
 
     // 修正前
-    // gs->window = SDL_CreateWindow("Wasuremono Wo Sagashini",
-    //                               SDL_WINDOWPOS_UNDEFINED,
-    //                               SDL_WINDOWPOS_UNDEFINED,
-    //                               1920,
-    //                               1080,
-    //                               SDL_WINDOW_SHOWN);
-
+    /*gs->window = SDL_CreateWindow("Wasuremono Wo Sagashini",
+                                  SDL_WINDOWPOS_UNDEFINED,
+                                  SDL_WINDOWPOS_UNDEFINED,
+                                  1920,
+                                  1080,
+                                  SDL_WINDOW_SHOWN);
+    */
     // 修正後
     gs->window = SDL_CreateWindow("忘れ物を探シニ",
                                   SDL_WINDOWPOS_UNDEFINED,
@@ -185,6 +187,7 @@ bool InitGame(GameState *gs)
                                   0,
                                   0,
                                   SDL_WINDOW_FULLSCREEN_DESKTOP);
+
     if (!gs->window)
     { /* エラー処理 */
         return false;
@@ -286,7 +289,7 @@ void Cleanup(GameState *gs)
     TTF_CloseFont(gs->font);
     TTF_CloseFont(gs->largeFont);
 
-    Mix_FreeChunk(gs->damageSound);
+    // Mix_FreeChunk(gs->damageSound);
     Mix_FreeChunk(gs->veggieGetSound);
     Mix_FreeChunk(gs->gameOverSound);
     // SDLサブシステムの終了

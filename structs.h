@@ -135,10 +135,10 @@ typedef struct
     GameObject veggies[MAX_VEGGIES];
     GameObject enemies[MAX_ENEMIES];
 
-    VeggieType targetVeggieType;                    // ★★★ 追加：今集めるべき野菜の種類 ★★★
-    SDL_Texture *veggieTextures[VEGGIE_TYPE_COUNT]; // ★★★ 追加：全野菜の画像を保持する配列 ★★★
+    VeggieType targetVeggieType;                    // 今集めるべき野菜の種類
+    SDL_Texture *veggieTextures[VEGGIE_TYPE_COUNT]; // 全野菜の画像を保持する配列
 
-    // ★★★ 複数のターゲットを管理するように変更 ★★★
+    // 複数のターゲットを管理するように変更
     VeggieType targetVeggieTypes[VEGGIE_TYPE_COUNT]; // ターゲットの野菜種類を格納する配列
     int targetVeggieCount;
 
@@ -154,17 +154,17 @@ typedef struct
 
     // フォント
     TTF_Font *font;
-    TTF_Font *largeFont; // ★★★ 追加 ★★★
+    TTF_Font *largeFont;
 
     // 効果音
-    Mix_Chunk *damageSound;
+    // Mix_Chunk *damageSound;
     Mix_Chunk *veggieGetSound;
     Mix_Chunk *gameOverSound;
 
     // 画像
     SDL_Texture *titleTexture;
     SDL_Texture *arrowTextures[MAX_ARROWS];
-    SDL_Texture *bgTextures[DIFFICULTY_COUNT];
+    // SDL_Texture *bgTextures[DIFFICULTY_COUNT];　 // 難易度ごとの背景画像（実装後、動作が重くなり、廃止）
     SDL_Texture *doorLockedTexture;
     SDL_Texture *doorUnlockedTexture;
     SDL_Texture *thanksTexture;
