@@ -410,15 +410,15 @@ static void DrawHUD(GameState *gs)
             gs->stageTimer);
 
     SDL_Color white = {255, 255, 255, 255};
-    SDL_Color black = {0, 0, 0, 255};
+    // SDL_Color black = {0, 0, 0, 255};
 
     DrawText(gs->renderer, gs->font, hudText, 20, 20, white);
     if (gs->currentMinigame == MINIGAME_VEGGIE)
     {
-        DrawText(gs->renderer, gs->font, "おつかいリスト:", 1450, 20, (SDL_Color){255, 255, 255, 255});
+        DrawText(gs->renderer, gs->font, "おつかいリスト:", 1400, 20, (SDL_Color){255, 255, 255, 255});
         for (int i = 0; i < gs->targetVeggieCount; i++)
         {
-            SDL_Rect targetRect = {1600 + i * 90, 10, 80, 80}; // 90ピクセルずつ右にずらす
+            SDL_Rect targetRect = {1500 + i * 90, 10, 80, 80}; // 90ピクセルずつ右にずらす
             SDL_RenderCopy(gs->renderer, gs->veggieTextures[gs->targetVeggieTypes[i]], NULL, &targetRect);
         }
     }
