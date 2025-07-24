@@ -160,13 +160,6 @@ static void DrawMainStage(GameState *gs)
     // 他の描画に影響しないように、ブレンドモードを元に戻す
     SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_NONE);
 
-    // 3. ゲーム内メッセージを描画
-    if (gs->gameMessage[0] != '\0')
-    {
-        SDL_Color black = {0, 0, 0, 255};
-        DrawText(gs->renderer, gs->font, gs->gameMessage, 250, 930, black);
-    }
-
     // キャラクターアイコンを描画 (メッセージボックスの左側に配置)
     SDL_Rect iconRect = {120, 830, 200, 200};
     // openingNovel.characterTexture の代わりに、新しい iconTexture を使う
