@@ -156,8 +156,8 @@ static void DrawMainStage(GameState *gs)
 
     // メッセージボックスを描画 (画面下部に配置)
 
-    // 1. メッセージボックスを描画 (画像ではなく図形描画で)
-    SDL_Rect msgBoxRect = {100, 880, 1720, 150}; // 位置とサイズは要調整
+    // メッセージボックスを描画
+    SDL_Rect msgBoxRect = {100, 880, 1720, 150}; //
 
     // 半透明の描画を有効にする
     SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_BLEND);
@@ -182,25 +182,19 @@ static void DrawMainStage(GameState *gs)
 
         DrawText(gs->renderer, gs->font, gs->gameMessage, 300, 930, white);
     }
-
-    // 4. HUDを描画 (最前面に表示)
     DrawHUD(gs);
 }
 
-// draw.c に新しい静的関数を追加
-
 static void DrawNovelScene(GameState *gs)
 {
-    // 1. 背景を描画 (仮に黒でクリア)
+    // 背景を描画
     SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 255);
     SDL_RenderClear(gs->renderer);
 
-    // 2. キャラクターの立ち絵を描画 (例: 右側に配置)
+    // キャラクターの立ち絵を描画 ( 右側に配置)
     SDL_Rect charRect = {1200, 100, 600, 900}; // 位置とサイズは要調整
     SDL_RenderCopy(gs->renderer, gs->openingNovel.characterTexture, NULL, &charRect);
 
-    // ★★★ ここから修正 ★★★
-    // 3. メッセージボックスを描画
     SDL_Rect msgBoxRect = {100, 780, 1720, 250}; // 位置とサイズは要調整
 
     // 半透明の描画を有効にする
@@ -213,9 +207,8 @@ static void DrawNovelScene(GameState *gs)
 
     // 他の描画に影響しないように、ブレンドモードを元に戻す
     SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_NONE);
-    // ★★★ ここまで ★★★
 
-    // 4. 現在の行のテキストを描画
+    // 現在の行のテキストを描画
     if (gs->openingNovel.currentLine < gs->openingNovel.lineCount)
     {
         SDL_Color white = {255, 255, 255, 255};
@@ -223,7 +216,6 @@ static void DrawNovelScene(GameState *gs)
     }
 }
 
-// カットイン用
 static void DrawStageClearScene(GameState *gs)
 {
     // まず、背景としてメインステージの画面をそのまま描画する
@@ -242,9 +234,6 @@ static void DrawStageClearScene(GameState *gs)
 static void DrawEndingScene(GameState *gs)
 {
 
-    // --- 1. まず、本来のエンディング画面の要素を全て描画する ---
-
-    // 背景を明るいクリーム色でクリア
     SDL_SetRenderDrawColor(gs->renderer, 250, 250, 210, 255);
     SDL_RenderClear(gs->renderer);
 
@@ -325,14 +314,13 @@ static void DrawVeggieMinigame(GameState *gs)
 
 static void DrawArrowMinigame(GameState *gs)
 {
-    // --- サイズと間隔の設定 ---
-    int size = 256;     // 矢印のサイズ
-    int spacing = 300;  // 矢印同士の間隔
-    int y = 400;        // 矢印のY座標
+    int size = 256;    // 矢印のサイズ
+    int spacing = 300; // 矢印同士の間隔
+    int y = 400;
     int thickness = 10; // 線の太さ
     int first_arrow_x = 400;
 
-    // --- アニメーションの進行度を計算 ---
+    // アニメーションの進行度を計算 ---
     float progress = 0.0f;
     if (gs->isArrowAnimating)
     {

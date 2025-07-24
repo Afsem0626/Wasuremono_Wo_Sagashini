@@ -1,7 +1,7 @@
 #include "init.h"
 #include <stdio.h>
-#include <stdlib.h> // ★★★ srand(), rand() のために追加 ★★★
-#include <time.h>   // ★★★ time() のために追加 ★★★
+#include <stdlib.h>
+#include <time.h>
 
 static void LoadScript(const char *path, NovelState *novel);
 
@@ -62,13 +62,6 @@ void LoadAssets(GameState *gs)
     LoadScript("assets/opening.txt", &gs->openingNovel);
     LoadScript("assets/ending.txt", &gs->endingNovel);
 
-    // 野菜画像
-    /*gs->veggies[0].texture = LoadTexture("vegetables/carrot.png", gs->renderer);
-    gs->veggies[1].texture = LoadTexture("vegetables/eggplant.png", gs->renderer);
-    gs->veggies[2].texture = LoadTexture("vegetables/tomato.png", gs->renderer);
-    gs->veggies[3].texture = LoadTexture("vegetables/turnip.png", gs->renderer);   // ★★★ 追加 ★★★
-    gs->veggies[4].texture = LoadTexture("vegetables/mushroom.png", gs->renderer); // ★★★ 追加 ★★★
-    */
     gs->veggieTextures[VEGGIE_CARROT] = LoadTexture("vegetables/carrot.png", gs->renderer);
     gs->veggieTextures[VEGGIE_EGGPLANT] = LoadTexture("vegetables/eggplant.png", gs->renderer);
     gs->veggieTextures[VEGGIE_TOMATO] = LoadTexture("vegetables/tomato.png", gs->renderer);
@@ -219,7 +212,6 @@ bool InitGame(GameState *gs)
     gs->player.rect = (SDL_Rect){100, (screen_h - 100) / 2, 100, 100};
 
     // 野菜
-    /**/
     gs->veggiesCollected = 0;
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
@@ -246,7 +238,6 @@ bool InitGame(GameState *gs)
     // 初期シーンをタイトル画面に設定
     gs->currentScene = SCENE_TITLE;
     gs->difficultySelection = 0; // 難易度選択用カーソル
-    // gs->currentScene = SCENE_MAIN_STAGE;
     return true;
 }
 

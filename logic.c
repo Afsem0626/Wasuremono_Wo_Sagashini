@@ -22,20 +22,18 @@ static void StartNewRandomMinigame(GameState *gs);
 static void ResetStage(GameState *gs);
 static void UpdatePlayer(GameState *gs, const InputState *input);
 static void UpdateEnemies(GameState *gs);
-static void CheckCollisions(GameState *gs, const InputState *input); // ← 修正後
+static void CheckCollisions(GameState *gs, const InputState *input);
 static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b);
-
-// main.c で呼び出す関数
 
 void UpdateGame(GameState *gs, const InputState *input)
 {
-    // ★★★ メッセージタイマーの更新処理を追加 ★★★
     if (gs->messageTimer > 0)
     {
         gs->messageTimer -= (1.0f / 60.0f);
         if (gs->messageTimer <= 0)
         {
             gs->gameMessage[0] = '\0'; // タイマーが切れたらメッセージを空にする
+            // メッセージが空になったら、次の行へ進む
         }
     }
 
@@ -58,10 +56,9 @@ void UpdateGame(GameState *gs, const InputState *input)
             PlaySound(gs->gameOverSound);
             gs->currentScene = SCENE_GAME_OVER;
             gs->transitionTimer = 1.5f;
-            printf("時間切れ！ゲームオーバー！\n");
-            break; // 時間切れなので、このフレームの他の処理は行わない
+            // printf("時間切れ！ゲームオーバー！\n");
+            break;
         }
-        // メインステージの中では、さらにミニゲームの種類で処理を分ける
         if (gs->currentMinigame == MINIGAME_VEGGIE)
         {
             UpdateVeggieMinigame(gs, input);
@@ -92,8 +89,6 @@ void UpdateGame(GameState *gs, const InputState *input)
     }
 }
 
-// 以下はこのファイル内だけで使われる静的関数
-
 static void UpdateTitleScene(GameState *gs, const InputState *input)
 {
     if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed)
@@ -117,7 +112,6 @@ static void UpdateDifficultyScene(GameState *gs, const InputState *input)
         gs->difficultySelection = (gs->difficultySelection + 1) % DIFFICULTY_COUNT;
     }
 
-    // 決定ボタン（Aボタンなど）が押されたら
     if (input->a_pressed)
     {
         // 選択されているカーソル位置を、実際の難易度として設定
@@ -127,7 +121,7 @@ static void UpdateDifficultyScene(GameState *gs, const InputState *input)
         // ステージをリセットしてゲームを開始
         StartNewRandomMinigame(gs);
         gs->currentScene = SCENE_MAIN_STAGE;
-        printf("難易度 %d でゲーム開始！\n", gs->difficulty);
+        // printf("難易度 %d でゲーム開始！\n", gs->difficulty);
     }
 }
 
@@ -163,7 +157,6 @@ static void UpdateEndingScene(GameState *gs, const InputState *input)
         return; // タイマー作動中はキー入力を受け付けない
     }
 
-    // ★★★ 以下にロジックを修正・追加 ★★★
     // タイマー終了後、何かパネルが「押された瞬間」なら
     if (input->up_pressed || input->down_pressed || input->left_pressed || input->right_pressed || input->a_pressed || input->b_pressed)
     {
@@ -174,13 +167,11 @@ static void UpdateEndingScene(GameState *gs, const InputState *input)
         {
             // 次に表示するオープニング会話の行を0に戻しておく
             gs->openingNovel.currentLine = 0;
-            // タイトル画面へ移行
             gs->currentScene = SCENE_THANKS;
         }
     }
 }
 
-// logic.c に追加
 static void UpdateThanksScene(GameState *gs, const InputState *input)
 {
     // 何かパネルが「押された瞬間」なら、タイトル画面に戻る
@@ -220,16 +211,15 @@ static void UpdateVeggieMinigame(GameState *gs, const InputState *input)
     }
     if (gs->veggiesCollected >= gs->veggiesRequired && gs->door.doorState == DOOR_LOCKED)
     {
-        printf("全ての野菜を回収！ 扉のロックが解除された！\n");
+        // printf("全ての野菜を回収！ 扉のロックが解除された！\n");
         gs->door.doorState = DOOR_UNLOCKED;
-        SetGameMessage(gs, "先に進めるみたい！", 5.0f);
+        SetGameMessage(gs, "見て！先に進めるみたい！", 5.0f);
         // ここでロック解除の効果音を鳴らす予定
     }
 }
 
 static void UpdateArrowMinigame(GameState *gs, const InputState *input)
 {
-    // --- アニメーション中の処理 ---
     if (gs->isArrowAnimating)
     {
         // タイマーを進める (1/60.0fは60FPSを仮定)
@@ -239,12 +229,11 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
         if (gs->arrowAnimationTimer >= ARROW_ANIMATION_DURATION)
         {
             gs->isArrowAnimating = false; // アニメーション終了
-            gs->arrowPlayerProgress++;    // プレイヤーの進捗をここで初めて進める
+            gs->arrowPlayerProgress++;
 
-            // これでミニゲームクリアか判定
             if (gs->arrowPlayerProgress >= gs->arrowCount)
             {
-                printf("ミニゲーム2 クリア！\n");
+                // printf("ミニゲーム2 クリア！\n");
                 gs->minigamesCleared++;
 
                 if (gs->minigamesCleared >= gs->minigamesRequired)
@@ -263,12 +252,11 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
         return; // アニメーション中は以降の入力処理を行わない
     }
 
-    // --- 入力待ちの処理 ---
+    // 入力待ちの処理
     int expected_input = gs->arrowSequence[gs->arrowPlayerProgress];
     bool correct_input = false;
     bool wrong_input = false;
 
-    // (入力判定ロジックは同じ)
     if (input->up_pressed)
     {
         if (expected_input == ARROW_UP)
@@ -311,8 +299,8 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
     {
         // gs->player.hp--; // HPは減らさない
         PlaySound(gs->damageSound);
-        SetGameMessage(gs, "ミス！最初から！", 2.0f); // 2秒間メッセージを表示
-        gs->arrowPlayerProgress = 0;                  // 最初からやり直し
+        SetGameMessage(gs, "ミスった～！最初からになっちゃった！", 2.0f); // 2秒間メッセージを表示
+        gs->arrowPlayerProgress = 0;                                      // 最初からやり直し
     }
 
     // HPが0になったらゲームオーバー
@@ -330,13 +318,13 @@ static void StartNewRandomMinigame(GameState *gs)
     if (rand() % 3 != 2)
     {
         gs->currentMinigame = MINIGAME_VEGGIE;
-        printf("次のミニゲーム: 野菜集め\n");
+        // printf("次のミニゲーム: 野菜集め\n");
         SetGameMessage(gs, "まずは野菜を拾わなくちゃ！", 5.0f); // 5秒間表示
     }
     else
     {
         gs->currentMinigame = MINIGAME_ARROWS;
-        printf("次のミニゲーム: 矢印入力\n");
+        // printf("次のミニゲーム: 矢印入力\n");
         SetGameMessage(gs, "同じ矢印を踏んで迷わず帰ろう！", 5.0f); // 5秒間表示
     }
 }
@@ -365,11 +353,9 @@ static void CheckCollisions(GameState *gs, const InputState *input)
     // 野菜との当たり判定
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
-        // ★★★ 「かつ、Aボタンが押された瞬間なら」という条件を追加 ★★★
         if (gs->veggies[i].isActive && DetectCollision(&gs->player.rect, &gs->veggies[i].rect) &&
             input->a_pressed)
         {
-            // ★★★ ターゲットと同じ種類の野菜かチェック ★★★
             bool isTarget = false;
             for (int j = 0; j < gs->targetVeggieCount; j++)
             {
@@ -403,14 +389,14 @@ static void CheckCollisions(GameState *gs, const InputState *input)
             gs->player.hp--;
             gs->enemies[i].isActive = false;
             PlaySound(gs->damageSound);
-            printf("ダメージ！ 残りHP: %d\n", gs->player.hp);
-            SetGameMessage(gs, "ダメージ！", 2.0f); // 2秒間メッセージを表示
+            // printf("ダメージ！ 残りHP: %d\n", gs->player.hp);
+            SetGameMessage(gs, "痛ったー！ぶつかっちゃった...", 2.0f); // 2秒間メッセージを表示
         }
     }
     // 扉との当たり判定
     if (gs->player.hp > 0 && gs->door.doorState == DOOR_UNLOCKED && DetectCollision(&gs->player.rect, &gs->door.rect))
     {
-        printf("扉に入った！ミニゲーム1 クリア！カットインへ\n");
+        // printf("扉に入った！ミニゲーム1 クリア！カットインへ\n");
         gs->minigamesCleared++;
         if (gs->minigamesCleared >= gs->minigamesRequired)
         {
@@ -426,7 +412,6 @@ static void CheckCollisions(GameState *gs, const InputState *input)
     }
 }
 
-// プレイヤーの移動関数
 static void UpdatePlayer(GameState *gs, const InputState *input)
 {
     //  これまでの移動処理
@@ -442,10 +427,8 @@ static void UpdatePlayer(GameState *gs, const InputState *input)
     // プレイヤーの移動を制限
     //  画面のサイズを取得
     int screen_w, screen_h;
-    // GameState構造体からrendererポインタを渡す
     SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
 
-    // 3. 左右の壁との判定
     // 左の壁
     if (gs->player.rect.x < 0)
     {
@@ -457,7 +440,6 @@ static void UpdatePlayer(GameState *gs, const InputState *input)
         gs->player.rect.x = screen_w - gs->player.rect.w;
     }
 
-    // 上下の壁との判定
     // 上の壁
     if (gs->player.rect.y < 0)
     {
@@ -477,7 +459,7 @@ static bool DetectCollision(const SDL_Rect *a, const SDL_Rect *b)
 
 static void ResetStage(GameState *gs)
 {
-    printf("ステージをリセットします。\n");
+    // printf("ステージをリセットします。\n");
 
     switch (gs->difficulty)
     {
@@ -488,8 +470,8 @@ static void ResetStage(GameState *gs)
         gs->minigamesRequired = 1;
         gs->stageTimer = 30.0f;
         // 敵の設定
-        gs->enemies[0].isActive = true; // 1体だけ出現
-        gs->enemies[0].vx = -5;         // 遅い
+        gs->enemies[0].isActive = true;
+        gs->enemies[0].vx = -5;
         gs->enemies[1].isActive = false;
 
         gs->arrowCount = 4;
@@ -502,8 +484,8 @@ static void ResetStage(GameState *gs)
         gs->minigamesRequired = 4;
         gs->stageTimer = 25.0f;
         // 敵の設定
-        gs->enemies[0].isActive = true; // 1体だけ出現
-        gs->enemies[0].vx = -7;         // 普通の速さ
+        gs->enemies[0].isActive = true;
+        gs->enemies[0].vx = -7;
         gs->enemies[1].isActive = false;
 
         gs->arrowCount = 5;
@@ -516,9 +498,9 @@ static void ResetStage(GameState *gs)
         gs->minigamesRequired = 4;
         gs->stageTimer = 25.0f;
         gs->enemies[0].isActive = true;
-        gs->enemies[0].vx = -10; // 速い
+        gs->enemies[0].vx = -10;
         gs->enemies[1].isActive = true;
-        gs->enemies[1].vx = -8; // 少し速い
+        gs->enemies[1].vx = -8;
 
         gs->arrowCount = 6;
         break;
@@ -532,13 +514,13 @@ static void ResetStage(GameState *gs)
         for (int i = 0; i < MAX_ENEMIES; i++)
         {
             if (i < 5)
-            { // 最初の5体だけを有効にする
+            {
                 gs->enemies[i].isActive = true;
                 gs->enemies[i].vx = -12 - (rand() % 8); // 速さもランダムに
             }
             else
             {
-                gs->enemies[i].isActive = false; // 残りは非表示
+                gs->enemies[i].isActive = false;
             }
         }
 
@@ -555,21 +537,11 @@ static void ResetStage(GameState *gs)
         break;
     }
 
-    // （削除予定）gs->minigamesCleared = 0; // クリア数は常に0にリセット
-    //   ゲーム開始時・リスタート時にクリア状況をリセット
     if (gs->currentScene == SCENE_TITLE)
     { // タイトルから始める時だけリセット
         gs->minigamesCleared = 0;
-        // 難易度に応じて変更する（今は仮に4つとする）
-        // gs->minigamesRequired = 4;
     }
 
-    // プレイヤーの状態をリセット
-    // gs->player.hp = 2;
-    // クリアに必要な野菜の数を設定
-    // gs->veggiesRequired = MAX_VEGGIES;
-
-    // 画面サイズを取得して、プレイヤーを初期位置（左側の中央）に配置
     int screen_w, screen_h;
     SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
     gs->player.rect.x = 100;
@@ -578,7 +550,7 @@ static void ResetStage(GameState *gs)
     // 野菜の状態をリセット
 
     VeggieType all_veggies[VEGGIE_TYPE_COUNT] = {VEGGIE_CARROT, VEGGIE_EGGPLANT, VEGGIE_TOMATO, VEGGIE_TURNIP, VEGGIE_MUSHROOM};
-    // 配列をシャッフルする（簡易的な方法）
+    // 配列をシャッフルする
     for (int i = 0; i < VEGGIE_TYPE_COUNT; i++)
     {
         int j = rand() % VEGGIE_TYPE_COUNT;
@@ -586,7 +558,7 @@ static void ResetStage(GameState *gs)
         all_veggies[i] = all_veggies[j];
         all_veggies[j] = temp;
     }
-    // シャッフルした配列の先頭から、必要な数だけをターゲットとしてコピー
+    // シャッフルした配列の先頭から、必要な数だけをリストとしてコピー
     for (int i = 0; i < gs->targetVeggieCount; i++)
     {
         gs->targetVeggieTypes[i] = all_veggies[i];
@@ -594,18 +566,14 @@ static void ResetStage(GameState *gs)
 
     // 野菜の状態をリセット
     gs->veggiesCollected = 0;
-    for (int i = 0; i < MAX_VEGGIES; i++) // MAX_VEGGIESは5になっているはず
+    for (int i = 0; i < MAX_VEGGIES; i++)
     {
-        // 難易度で設定された数 (veggiesRequired) よりも
-        // インデックスが小さい野菜だけを有効にする
         if (i < MAX_VEGGIES)
         {
             gs->veggies[i].isActive = true; // 表示する
             gs->veggies[i].rect.x = 300 + (rand() % (screen_w - 400));
             gs->veggies[i].rect.y = 100 + (rand() % (screen_h - 200));
 
-            // ★★★ 各野菜に、0番目から順番に種類とテクスチャを設定 ★★★
-            // これにより、全種類が1つずつ必ず配置される
             VeggieType type = (VeggieType)i;
             gs->veggies[i].veggieType = type;
             gs->veggies[i].texture = gs->veggieTextures[type];
@@ -616,7 +584,6 @@ static void ResetStage(GameState *gs)
         }
     }
 
-    // ★★★ 敵の初期位置だけを設定する ★★★
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         gs->enemies[i].rect.x = screen_w + (i * 200) + (rand() % 300);
@@ -642,22 +609,19 @@ static void ResetStage(GameState *gs)
         gs->enemies[i].rect.y = 20 + (rand() % (screen_h - 150));
     }
 
-    // ミニゲーム2の状態をリセット
-    gs->arrowPlayerProgress = 0; // プレイヤーの進捗をリセット
+    gs->arrowPlayerProgress = 0; // プレイヤーの進度をリセット
     // 矢印をランダムに再生成
     for (int i = 0; i < MAX_ARROWS; i++)
     {
         gs->arrowSequence[i] = rand() % 4; // 0〜3の乱数を生成
     }
 }
-// 難易度によって敵の出現数を変動するようにしてるはずが、なぜかたくさん出てきてしまう
 //  カットイン用
 static void UpdateStageClearScene(GameState *gs)
 {
     // transitionTimerを少しずつ減らす
     gs->transitionTimer -= (1.0f / 60.0f);
 
-    // タイマーが0になったら
     if (gs->transitionTimer <= 0)
     {
         StartNewRandomMinigame(gs);          // 次のミニゲームを開始
@@ -665,7 +629,6 @@ static void UpdateStageClearScene(GameState *gs)
     }
 }
 
-// logic.c に追加
 static void UpdatePreEndingCutscene(GameState *gs)
 {
     // transitionTimerを少しずつ減らす
