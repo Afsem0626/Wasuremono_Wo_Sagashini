@@ -526,6 +526,8 @@ static void ResetStage(GameState *gs)
     case DIFF_IKUU:
         gs->player.hp = 3;
         gs->targetVeggieCount = 5;
+        gs->veggiesRequired = 3;
+
         gs->minigamesRequired = 5;
         gs->stageTimer = 15.0f;
         for (int i = 0; i < MAX_ENEMIES; i++)
