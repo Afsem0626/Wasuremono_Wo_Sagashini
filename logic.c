@@ -527,7 +527,6 @@ static void ResetStage(GameState *gs)
         gs->player.hp = 3;
         gs->targetVeggieCount = 5;
         gs->veggiesRequired = 5;
-
         gs->minigamesRequired = 5;
         gs->stageTimer = 15.0f;
         for (int i = 0; i < MAX_ENEMIES; i++)

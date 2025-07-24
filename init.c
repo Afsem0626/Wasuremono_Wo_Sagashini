@@ -43,7 +43,7 @@ void LoadAssets(GameState *gs)
     gs->titleTexture = LoadTexture("assets/title_screen.png", gs->renderer);
 
     // プレイヤー画像（現在は青い箱）
-    gs->player.texture = LoadTexture("player.png", gs->renderer);
+    gs->player.texture = LoadTexture("assets/player.png", gs->renderer);
 
     // ノベル用
     gs->openingNovel.characterTexture = LoadTexture("assets/yuri_stand.png", gs->renderer);
@@ -76,7 +76,7 @@ void LoadAssets(GameState *gs)
     gs->doorUnlockedTexture = LoadTexture("assets/door_unlocked.png", gs->renderer);
 
     // まず、敵のテクスチャを一度だけ読み込む
-    SDL_Texture *enemyTexture = LoadTexture("enemies/enemy.png", gs->renderer);
+    SDL_Texture *enemyTexture = LoadTexture("assets/enemy.png", gs->renderer);
 
     SDL_Surface *surface = IMG_Load("assets/thanks.png");
     if (!surface)
