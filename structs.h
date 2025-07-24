@@ -164,6 +164,7 @@ typedef struct
     // 画像
     SDL_Texture *titleTexture;
     SDL_Texture *arrowTextures[MAX_ARROWS];
+    SDL_Texture *bgTextures[DIFFICULTY_COUNT];
     SDL_Texture *doorLockedTexture;
     SDL_Texture *doorUnlockedTexture;
     SDL_Texture *thanksTexture;

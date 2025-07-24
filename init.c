@@ -42,7 +42,13 @@ void LoadAssets(GameState *gs)
     // タイトル画面
     gs->titleTexture = LoadTexture("assets/title_screen.png", gs->renderer);
 
-    // プレイヤー画像（現在は青い箱）
+    // 難易度ごとの背景画像
+    gs->bgTextures[DIFF_DAY] = LoadTexture("assets/bg_day.png", gs->renderer);
+    gs->bgTextures[DIFF_EVENING] = LoadTexture("assets/bg_evening.png", gs->renderer);
+    gs->bgTextures[DIFF_NIGHT] = LoadTexture("assets/bg_night.png", gs->renderer);
+    gs->bgTextures[DIFF_IKUU] = LoadTexture("assets/bg_ikuu.png", gs->renderer);
+
+    // プレイヤー画像（羽のイラスト）
     gs->player.texture = LoadTexture("assets/player.png", gs->renderer);
 
     // ノベル用
@@ -52,9 +58,7 @@ void LoadAssets(GameState *gs)
     gs->thanksTexture = LoadTexture("assets/thanks.png", gs->renderer);
     gs->gameOverTexture = LoadTexture("assets/game_over.png", gs->renderer);
 
-    gs->openingNovel.windowTexture = LoadTexture("assets/message_window.png", gs->renderer);
-
-    // テキストファイルを読み込む (この補助関数は後で作成)
+    // テキストファイルを読み込む
     LoadScript("assets/opening.txt", &gs->openingNovel);
     LoadScript("assets/ending.txt", &gs->endingNovel);
 
@@ -75,14 +79,14 @@ void LoadAssets(GameState *gs)
     gs->doorLockedTexture = LoadTexture("assets/door_locked.png", gs->renderer);
     gs->doorUnlockedTexture = LoadTexture("assets/door_unlocked.png", gs->renderer);
 
-    // まず、敵のテクスチャを一度だけ読み込む
+    // 敵のテクスチャを読み込む
     SDL_Texture *enemyTexture = LoadTexture("assets/enemy.png", gs->renderer);
 
     SDL_Surface *surface = IMG_Load("assets/thanks.png");
     if (!surface)
     {
         fprintf(stderr, "IMG_Load: %s\n", IMG_GetError());
-        // エラー処理（ゲームを終了するなど）を検討してください
+        // エラー処理
         return;
     }
     gs->thanksTexture = SDL_CreateTextureFromSurface(gs->renderer, surface);
@@ -90,7 +94,7 @@ void LoadAssets(GameState *gs)
     if (!gs->thanksTexture)
     {
         fprintf(stderr, "SDL_CreateTextureFromSurface: %s\n", SDL_GetError());
-        // エラー処理（ゲームを終了するなど）を検討してください
+        // エラー処理
         return;
     }
 
@@ -185,8 +189,8 @@ bool InitGame(GameState *gs)
     gs->window = SDL_CreateWindow("忘れ物を探シニ",
                                   SDL_WINDOWPOS_UNDEFINED,
                                   SDL_WINDOWPOS_UNDEFINED,
-                                  0, // 0に設定
-                                  0, // 0に設定
+                                  0,
+                                  0,
                                   SDL_WINDOW_FULLSCREEN_DESKTOP);
     if (!gs->window)
     { /* エラー処理 */
@@ -261,7 +265,6 @@ void Cleanup(GameState *gs)
 
     // 会話シーン用テクスチャの解放
     SDL_DestroyTexture(gs->openingNovel.characterTexture);
-    SDL_DestroyTexture(gs->openingNovel.windowTexture);
 
     SDL_DestroyTexture(gs->endingNovel.characterTexture);
     SDL_DestroyTexture(gs->endingNovel.windowTexture);
