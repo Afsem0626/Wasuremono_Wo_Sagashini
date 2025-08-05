@@ -98,7 +98,7 @@ void LoadAssets(GameState *gs)
         gs->enemies[i].texture = enemyTexture;
     }
 
-    // 効果音
+    // 効果音（最終的に、実装を辞退した）
     /*gs->damageSound = Mix_LoadWAV("sound/damage.wav");
     if (!gs->damageSound)
     {  エラー処理
@@ -176,7 +176,7 @@ bool InitGame(GameState *gs)
     gs->veggieGetChannel = 0; // 0番チャンネルは野菜取得音用
     gs->gameOverChannel = 1;
 
-    // 修正前
+    // 修正前（フルHD、ただし電算室のパソコンではアイコンが上に重なった）
     /*gs->window = SDL_CreateWindow("Wasuremono Wo Sagashini",
                                   SDL_WINDOWPOS_UNDEFINED,
                                   SDL_WINDOWPOS_UNDEFINED,
@@ -184,7 +184,7 @@ bool InitGame(GameState *gs)
                                   1080,
                                   SDL_WINDOW_SHOWN);
     */
-    // 修正後
+    // 修正後（フルスクリーン）
     gs->window = SDL_CreateWindow("忘れ物を探シニ",
                                   SDL_WINDOWPOS_UNDEFINED,
                                   SDL_WINDOWPOS_UNDEFINED,
@@ -210,7 +210,7 @@ bool InitGame(GameState *gs)
     // アセット読み込み
     LoadAssets(gs);
 
-    // --- 各オブジェクトの初期状態を設定 ---
+    // 各オブジェクトの初期状態を設定
     int screen_w, screen_h;
     SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
 

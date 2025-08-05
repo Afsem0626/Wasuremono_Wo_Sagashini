@@ -32,7 +32,7 @@ void UpdateGame(GameState *gs, const InputState *input)
         gs->messageTimer -= (1.0f / 60.0f);
         if (gs->messageTimer <= 0)
         {
-            gs->gameMessage[0] = '\0'; // タイマーが切れたらメッセージを空にする
+            gs->gameMessage[0] = '\0';
             // メッセージが空になったら、次の行へ進む
         }
     }
@@ -102,7 +102,7 @@ static void UpdateTitleScene(GameState *gs, const InputState *input)
 
 static void UpdateDifficultyScene(GameState *gs, const InputState *input)
 {
-    // 上が押されたらカーソルを一つ上に（ループする）
+    // カーソルで難易度選択
     if (input->up_pressed)
     {
         gs->difficultySelection = (gs->difficultySelection - 1 + DIFFICULTY_COUNT) % DIFFICULTY_COUNT;
@@ -239,13 +239,13 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
                 if (gs->minigamesCleared >= gs->minigamesRequired)
                 {
                     gs->currentScene = SCENE_PRE_ENDING_CUTSCENE;
-                    gs->transitionTimer = 1.5f; // 特別なので少し長めに3秒表示
+                    gs->transitionTimer = 1.5f;
                 }
                 else
                 {
-                    // 次のゲームに直接進むのではなく、クリア画面に移行
+                    // 久リア画面に移行
                     gs->currentScene = SCENE_STAGE_CLEAR;
-                    gs->transitionTimer = 2.0f; // カットインを2秒間表示する
+                    gs->transitionTimer = 2.0f; // カットインをn秒間表示する
                 }
             }
         }
@@ -289,15 +289,14 @@ static void UpdateArrowMinigame(GameState *gs, const InputState *input)
     // 正解だった場合の処理
     if (correct_input)
     {
-        // すぐに進捗を進めるのではなく、アニメーションを開始する
         gs->isArrowAnimating = true;
         gs->arrowAnimationTimer = 0.0f; // タイマーをリセット
-        // 正解の効果音を鳴らす
+        // 正解の効果音を鳴らす予定だったがやめた
     }
     // 不正解だった場合の処理
     else if (wrong_input)
     {
-        // gs->player.hp--; // HPは減らさない
+        // gs->player.hp--; // HPは減らさないようにした
         // PlaySound(gs->damageSound);
         SetGameMessage(gs, "ミスった～！最初からになっちゃった！", 2.0f); // 2秒間メッセージを表示
         gs->arrowPlayerProgress = 0;                                      // 最初からやり直し
@@ -419,7 +418,7 @@ static void CheckCollisions(GameState *gs, const InputState *input)
         {
             gs->endingNovel.currentLine = 0;
             gs->currentScene = SCENE_PRE_ENDING_CUTSCENE; // カットインへ
-            gs->transitionTimer = 3.0f;                   // 特別なので少し長
+            gs->transitionTimer = 3.0f;
         }
         else
         {
@@ -567,7 +566,7 @@ static void ResetStage(GameState *gs)
     // 野菜の状態をリセット
 
     VeggieType all_veggies[VEGGIE_TYPE_COUNT] = {VEGGIE_CARROT, VEGGIE_EGGPLANT, VEGGIE_TOMATO, VEGGIE_TURNIP, VEGGIE_MUSHROOM};
-    // 配列をシャッフルする
+    // 配列のシャッフル
     for (int i = 0; i < VEGGIE_TYPE_COUNT; i++)
     {
         int j = rand() % VEGGIE_TYPE_COUNT;
@@ -575,19 +574,16 @@ static void ResetStage(GameState *gs)
         all_veggies[i] = all_veggies[j];
         all_veggies[j] = temp;
     }
-    // シャッフルした配列の先頭から、必要な数だけをリストとしてコピー
     for (int i = 0; i < gs->targetVeggieCount; i++)
     {
         gs->targetVeggieTypes[i] = all_veggies[i];
     }
-
-    // 野菜の状態をリセット
     gs->veggiesCollected = 0;
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
         if (i < MAX_VEGGIES)
         {
-            gs->veggies[i].isActive = true; // 表示する
+            gs->veggies[i].isActive = true;
             gs->veggies[i].rect.x = 300 + (rand() % (screen_w - 400));
             gs->veggies[i].rect.y = 100 + (rand() % (screen_h - 200));
 
@@ -597,7 +593,7 @@ static void ResetStage(GameState *gs)
         }
         else
         {
-            gs->veggies[i].isActive = false; // それ以外は非表示
+            gs->veggies[i].isActive = false;
         }
     }
 
@@ -610,7 +606,7 @@ static void ResetStage(GameState *gs)
 
     // 扉の状態をロック状態で初期化
     gs->door.doorState = DOOR_LOCKED;
-    // 扉の初期位置を固定（例：画面右端の中央）
+    // 扉の初期位置を固定（画面右端の中央）
     SDL_GetRendererOutputSize(gs->renderer, &screen_w, &screen_h);
     gs->door.rect = (SDL_Rect){screen_w - 150, (screen_h - 128) / 2, 128, 128};
 
@@ -630,7 +626,7 @@ static void ResetStage(GameState *gs)
     // 矢印をランダムに再生成
     for (int i = 0; i < MAX_ARROWS; i++)
     {
-        gs->arrowSequence[i] = rand() % 4; // 0〜3の乱数を生成
+        gs->arrowSequence[i] = rand() % 4;
     }
 }
 //  カットイン用
@@ -651,7 +647,6 @@ static void UpdatePreEndingCutscene(GameState *gs)
     // transitionTimerを少しずつ減らす
     gs->transitionTimer -= (1.0f / 60.0f);
 
-    // タイマーが0になったら
     if (gs->transitionTimer <= 0)
     {
         gs->endingNovel.currentLine = 0; // エンディング会話を最初からに

@@ -14,14 +14,13 @@ static void DrawVeggieMinigame(GameState *gs);
 static void DrawArrowMinigame(GameState *gs);
 static void DrawHUD(GameState *gs);
 
-// 公開関数 (main.c から呼び出される関数)
 void DrawGame(GameState *gs)
 {
     // 背景をクリア
     SDL_SetRenderDrawColor(gs->renderer, 200, 200, 220, 255); // 明るい灰色
     SDL_RenderClear(gs->renderer);
 
-    // 現在のシーンに応じて描画を切り替える
+    // 現在のシーンに応じて描画を切り替え
     switch (gs->currentScene)
     {
     case SCENE_TITLE:
@@ -60,7 +59,7 @@ void DrawDifficultyScene(GameState *gs)
     SDL_Color white = {255, 255, 255, 255};
     SDL_Color yellow = {255, 255, 0, 255};
 
-    // 難易度の選択肢を文字列の配列として定義
+    // 難易度の選択肢
     const char *difficulty_names[] = {
         "昼 (Easy)",
         "夕方 (Normal)",
@@ -81,21 +80,16 @@ void DrawDifficultyScene(GameState *gs)
         // 現在選択されている項目かどうかを判定
         if (i == gs->difficultySelection)
         {
-            // DrawText関数を一時的に改造するか、色を引数で渡せるようにするとより良い
-            // ここでは簡易的に、選択されている項目を示すカーソルを描画する
             DrawText(gs->renderer, gs->font, "→", 700, 400 + i * 100, yellow);
             DrawText(gs->renderer, gs->font, difficulty_names[i], 750, 400 + i * 100, white);
         }
         else
         {
-            // 選択されていない項目は通常の色で描画
-            // DrawTextの第5引数を後で修正する
+
             DrawText(gs->renderer, gs->font, difficulty_names[i], 750, 400 + i * 100, white);
         }
     }
 }
-
-// 以下はこのファイル内だけで使われる静的（static）関数
 
 static void DrawTitleScene(GameState *gs)
 {
@@ -118,8 +112,6 @@ static void DrawGameOverScene(GameState *gs)
 
     if (gs->gameOverTexture != NULL)
     {
-        // 第3引数と第4引数をNULLにすると、
-        // テクスチャがウィンドウ全体に引き伸ばされて表示されます。
         SDL_RenderCopy(gs->renderer, gs->gameOverTexture, NULL, NULL);
     }
     else
@@ -144,28 +136,26 @@ static void DrawMainStage(GameState *gs)
         DrawArrowMinigame(gs);
     }
 
-    // メッセージボックスを描画 (画面下部に配置)
+    // メッセージボックスの描画 (画面下部に配置)
 
-    // メッセージボックスを描画
     SDL_Rect msgBoxRect = {100, 880, 1720, 150}; //
 
     // 半透明の描画を有効にする
     SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_BLEND);
     // 描画色を半透明の黒に設定
-    SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 180); // 最後の180が透明度
+    SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 180); // メモ 最後の引数は透明度
 
     // 四角形を塗りつぶして描画
     SDL_RenderFillRect(gs->renderer, &msgBoxRect);
 
-    // 他の描画に影響しないように、ブレンドモードを元に戻す
     SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_NONE);
 
-    // キャラクターアイコンを描画 (メッセージボックスの左側に配置)
+    // キャラクターアイコンの描画
     SDL_Rect iconRect = {120, 830, 200, 200};
-    // openingNovel.characterTexture の代わりに、新しい iconTexture を使う
+
     SDL_RenderCopy(gs->renderer, gs->iconTexture, NULL, &iconRect);
 
-    // ゲーム内メッセージを描画
+    // ゲーム内メッセージの描画
     if (gs->gameMessage[0] != '\0')
     {
         SDL_Color white = {255, 255, 255, 255};
@@ -177,25 +167,23 @@ static void DrawMainStage(GameState *gs)
 
 static void DrawNovelScene(GameState *gs)
 {
-    // 背景を描画
+    // 背景の描画
     SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 255);
     SDL_RenderClear(gs->renderer);
 
-    // キャラクターの立ち絵を描画 ( 右側に配置)
-    SDL_Rect charRect = {1200, 100, 600, 900}; // 位置とサイズは要調整
+    // キャラクターの立ち絵を描画 (かなり右側に配置)
+    SDL_Rect charRect = {1200, 100, 600, 900};
     SDL_RenderCopy(gs->renderer, gs->openingNovel.characterTexture, NULL, &charRect);
 
-    SDL_Rect msgBoxRect = {100, 780, 1720, 250}; // 位置とサイズは要調整
+    SDL_Rect msgBoxRect = {100, 780, 1720, 250};
 
     // 半透明の描画を有効にする
     SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_BLEND);
     // 描画色を半透明の黒に設定
     SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 180); // 最後の180が透明度
 
-    // 四角形を塗りつぶして描画
     SDL_RenderFillRect(gs->renderer, &msgBoxRect);
 
-    // 他の描画に影響しないように、ブレンドモードを元に戻す
     SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_NONE);
 
     // 現在の行のテキストを描画
@@ -213,10 +201,10 @@ static void DrawStageClearScene(GameState *gs)
 
     // その上に、半透明の黒いフィルターをかける
     SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 128); // 128は透明度
-    SDL_RenderFillRect(gs->renderer, NULL);             // 画面全体を覆う
+    SDL_SetRenderDrawColor(gs->renderer, 0, 0, 0, 128);
+    SDL_RenderFillRect(gs->renderer, NULL); // 画面全体を覆う
 
-    // 「STAGE CLEAR」の文字を中央に大きく描画
+    // ステージクリアの文字を中央に描画
     SDL_Color white = {255, 255, 255, 255};
     DrawText(gs->renderer, gs->largeFont, "STAGE CLEAR!", 700, 450, white);
 }
@@ -231,7 +219,7 @@ static void DrawEndingScene(GameState *gs)
     SDL_Rect charRect = {1200, 100, 600, 900};
     SDL_RenderCopy(gs->renderer, gs->endingCharTexture, NULL, &charRect);
 
-    // メッセージボックスを描画 (図形描画で)
+    // メッセージボックスの描画
     SDL_Rect msgBoxRect = {100, 780, 1720, 250}; // 位置とサイズは要調整
 
     // 半透明の描画を有効にし、色を設定
@@ -241,7 +229,6 @@ static void DrawEndingScene(GameState *gs)
     // 四角形を塗りつぶして描画
     SDL_RenderFillRect(gs->renderer, &msgBoxRect);
 
-    // ブレンドモードを元に戻す
     SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_NONE);
 
     // テキストの描画
@@ -272,7 +259,7 @@ static void DrawThanksScene(GameState *gs)
 
 static void DrawVeggieMinigame(GameState *gs)
 {
-    // 野菜を描画
+    // 野菜の描画
     for (int i = 0; i < MAX_VEGGIES; i++)
     {
         if (gs->veggies[i].isActive)
@@ -280,7 +267,7 @@ static void DrawVeggieMinigame(GameState *gs)
             SDL_RenderCopy(gs->renderer, gs->veggies[i].texture, NULL, &gs->veggies[i].rect);
         }
     }
-    // 敵を描画
+    // 敵の描画
     for (int i = 0; i < MAX_ENEMIES; i++)
     {
         if (gs->enemies[i].isActive)
@@ -288,7 +275,7 @@ static void DrawVeggieMinigame(GameState *gs)
             SDL_RenderCopy(gs->renderer, gs->enemies[i].texture, NULL, &gs->enemies[i].rect);
         }
     }
-    // 扉を描画
+    // 扉の描画
     if (gs->door.doorState == DOOR_LOCKED)
     {
         SDL_RenderCopy(gs->renderer, gs->doorLockedTexture, NULL, &gs->door.rect);
@@ -310,7 +297,7 @@ static void DrawArrowMinigame(GameState *gs)
     int thickness = 10; // 線の太さ
     int first_arrow_x = 400;
 
-    // アニメーションの進行度を計算 ---
+    // アニメーションの進行度を計算する
     float progress = 0.0f;
     if (gs->isArrowAnimating)
     {
@@ -319,16 +306,13 @@ static void DrawArrowMinigame(GameState *gs)
             progress = 1.0f;
     }
 
-    // --- 画面に表示すべき矢印を描画 ---
+    // 画面に表示する矢印の描画
     for (int i = 0; i < gs->arrowCount - gs->arrowPlayerProgress; i++)
     {
-        // 現在のお題のインデックスを計算
-        // int sequence_index = gs->arrowPlayerProgress + i;
-
         // 画面外に出る矢印は描画しない
         int current_x = first_arrow_x + i * spacing;
         if (current_x > 1920)
-        { // 1920は画面幅
+        {
             break;
         }
 
@@ -342,13 +326,13 @@ static void DrawArrowMinigame(GameState *gs)
         // アニメーション中の描画処理
         if (gs->isArrowAnimating)
         {
-            // 1. 今まさに消えつつある矢印 (i=0、つまり先頭の矢印)
+            // 今まさに消えつつある矢印 (i=0は先頭の矢印)
             if (i == 0)
             {
                 // だんだん透明にする (アルファ値を変更)
                 SDL_SetTextureAlphaMod(tex, 255 * (1.0f - progress));
             }
-            // 2. 左にスライドしてくる後続の矢印
+            // 左にスライドしてくる後続の矢印
             else
             {
                 destRect.x -= spacing * progress; // progressに応じて左にずらす
@@ -356,8 +340,6 @@ static void DrawArrowMinigame(GameState *gs)
         }
         SDL_RenderCopy(gs->renderer, tex, NULL, &destRect);
     }
-
-    // --- ターゲットを示す太い四角形を描画 ---
 
     // 描画色を不透明度0の白に設定
     SDL_SetRenderDrawColor(gs->renderer, 255, 255, 255, 255);
@@ -425,12 +407,12 @@ static void DrawPreEndingCutscene(GameState *gs)
     // まず、背景としてメインステージの画面をそのまま描画する
     DrawMainStage(gs);
 
-    // その上に、半透明の白いフィルターをかける（特別感を演出）
+    // その上に、半透明の白いフィルターをかける
     SDL_SetRenderDrawBlendMode(gs->renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(gs->renderer, 255, 255, 255, 128); // 半透明の白
     SDL_RenderFillRect(gs->renderer, NULL);
 
-    // 「ALL STAGES CLEAR!」の文字を中央に大きく描画
+    // ゲームクリア文字を中央に描画
     SDL_Color black = {0, 0, 0, 255};
     DrawText(gs->renderer, gs->largeFont, "ALL STAGES CLEAR!", 550, 350, black);
     DrawText(gs->renderer, gs->largeFont, "Congratulations!", 550, 500, black);

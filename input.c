@@ -1,6 +1,5 @@
 #include "input.h"
 
-// 1フレーム前の入力状態を記憶する静的変数
 static InputState prev_input_state = {0};
 
 // DDRマットのボタン番号（jstestで調べた値に後で置き換える）
@@ -16,7 +15,7 @@ enum
 
 void HandleInput(GameState *gs, InputState *input)
 {
-    // 1. 前フレームの「押しっぱなし」状態を保存
+    //  前フレームの「押しっぱなし」状態を保存
     prev_input_state.up_held = input->up_held;
     prev_input_state.down_held = input->down_held;
     prev_input_state.left_held = input->left_held;
@@ -24,7 +23,7 @@ void HandleInput(GameState *gs, InputState *input)
     prev_input_state.a_held = input->a_held;
     prev_input_state.b_held = input->b_held;
 
-    // 2. SDLイベントキューを処理 (ウィンドウ終了イベントなど)
+    // SDLイベントキューを処理 (ウィンドウ終了イベントなど)
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
@@ -34,10 +33,10 @@ void HandleInput(GameState *gs, InputState *input)
             gs->isRunning = false;
     }
 
-    // 3. 現在の「押しっぱなし」状態を取得
+    // 現在の「押しっぱなし」状態を取得
     const Uint8 *k_state = SDL_GetKeyboardState(NULL);
 
-    // (||) を使って、キーボードとDDRマットのどちらかの入力があればtrueにする
+    // キーボードとDDRマットのどちらかの入力があればtrueにする
     input->up_held = k_state[SDL_SCANCODE_UP] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_UP) : 0);
     input->down_held = k_state[SDL_SCANCODE_DOWN] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_DOWN) : 0);
     input->left_held = k_state[SDL_SCANCODE_LEFT] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_LEFT) : 0);
@@ -45,7 +44,7 @@ void HandleInput(GameState *gs, InputState *input)
     input->a_held = k_state[SDL_SCANCODE_Z] || k_state[SDL_SCANCODE_RETURN] || k_state[SDL_SCANCODE_SPACE] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_A) : 0);
     input->b_held = k_state[SDL_SCANCODE_X] || (gs->ddrMat ? SDL_JoystickGetButton(gs->ddrMat, DDR_B) : 0);
 
-    // 4. 「押された瞬間」を判定
+    // 「押された瞬間」を判定
     input->up_pressed = input->up_held && !prev_input_state.up_held;
     input->down_pressed = input->down_held && !prev_input_state.down_held;
     input->left_pressed = input->left_held && !prev_input_state.left_held;

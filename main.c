@@ -14,10 +14,10 @@ int main(int argc, char *argv[])
     {
         return 1;
     }
-    // アセットの読み込みも呼び出す
+    // アセットの呼び出し
     LoadAssets(&gameState);
 
-    // メインループ
+    // 以下はメインループ
     gameState.isRunning = true;
     while (gameState.isRunning)
     {
@@ -29,17 +29,17 @@ int main(int argc, char *argv[])
         // 入力処理
         HandleInput(&gameState, &inputState);
 
-        // ロジック更新：inputStateを基に、gameStateを更新する
+        // ロジック更新：inputStateを元に、gameStateを更新する
         UpdateGame(&gameState, &inputState);
 
         // 描画：現在のgameStateを元に画面を描く
         DrawGame(&gameState);
 
-        // 負荷軽減のためにディレイをかけるぜ
+        // 負荷軽減のためにディレイをかけた方が良いとのこと（生成AIの提案）
         SDL_Delay(16);
     }
 
-    // 終了処理
+    // 終了処理（テクスチャ、メモリの解放など）
     Cleanup(&gameState);
 
     return 0;
